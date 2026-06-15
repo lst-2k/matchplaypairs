@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegendSimTours Pairs Matchplay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F7F4EC;
+    --ink:#1B2B1F;
+    --fairway:#1F4D2C;
+    --fairway-light:#2E6B3E;
+    --gold:#C9A227;
+    --up:#2E6B3E;
+    --down:#B3461C;
+    --halved:#9A8C70;
+    --line:#DDD6C5;
+    --card:#FFFFFF;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces',serif;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* Header */
+  header{
+    background:var(--fairway);
+    color:var(--cream);
+    padding:28px 24px 22px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px);
+    pointer-events:none;
+  }
+  header .wrap{max-width:1100px;margin:0 auto;position:relative;}
+  header h1{font-size:clamp(28px,5vw,42px); font-weight:700;}
+  header .meta{
+    margin-top:10px;
+    display:flex; flex-wrap:wrap; gap:10px 22px;
+    font-size:14px; color:#D9E6DA;
+  }
+
+  /* Layout */
+  .container{max-width:1100px; margin:0 auto; padding:24px;}
+  .tabs{
+    display:flex; gap:6px; flex-wrap:wrap;
+    margin-bottom:20px;
+    border-bottom:2px solid var(--line);
+  }
+  .tab{
+    padding:10px 18px;
+    background:none; border:none;
+    font-family:'Fraunces',serif; font-size:16px; font-weight:600;
+    color:#7A7363; cursor:pointer;
+    border-bottom:3px solid transparent;
+    transform:translateY(2px);
+  }
+  .tab.active{color:var(--fairway); border-bottom-color:var(--gold);}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .card h3{font-size:18px; margin-bottom:14px; color:var(--fairway);}
+
+  select{
+    font-family:inherit;
+    font-size:14px;
+    padding:9px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+    width:100%;
+    max-width:560px;
+  }
+
+  .swatch{
+    width:14px; height:14px; border-radius:4px; display:inline-block; margin-right:8px; vertical-align:middle;
+    border:1px solid rgba(0,0,0,0.1);
+  }
+
+  /* Fixtures */
+  .fixture-card{
+    border:1px solid var(--line); border-radius:10px; padding:14px; margin-top:12px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .fixture-teams{font-family:'Fraunces',serif; font-size:17px; font-weight:600;}
+  .fixture-pair-rows{display:flex; flex-direction:column; gap:8px;}
+  .fixture-pair-row{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--cream); border-radius:8px; padding:8px 12px;
+  }
+  .fixture-pair{
+    margin-top:0; font-size:14px; color:var(--ink); display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .fixture-pair-num{
+    font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
+    color:var(--gold); background:rgba(201,162,39,0.15);
+    border-radius:6px; padding:2px 6px;
+  }
+  .pair-names{font-weight:600;}
+  .pill{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px; font-weight:700;
+    padding:5px 12px; border-radius:999px;
+    color:#fff; background:var(--halved);
+    white-space:nowrap;
+  }
+  .pill.up{background:var(--up);}
+  .pill.down{background:var(--down);}
+  .pill.final{box-shadow:0 0 0 2px var(--gold) inset;}
+  .round-label{
+    font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold);
+    font-weight:700; margin:18px 0 4px;
+  }
+  .round-label:first-child{margin-top:0;}
+
+  /* Scorecard */
+  .scorecard-wrap{overflow-x:auto;}
+  table.scorecard{
+    border-collapse:collapse;
+    width:100%;
+    min-width:760px;
+    font-size:13px;
+  }
+  table.scorecard th, table.scorecard td{
+    border:1px solid var(--line);
+    text-align:center;
+    padding:6px 4px;
+  }
+  table.scorecard th{
+    background:var(--fairway);
+    color:var(--cream);
+    font-weight:600;
+    font-size:12px;
+  }
+  table.scorecard td.label{
+    text-align:left; font-weight:600; background:var(--cream); white-space:nowrap; padding-left:10px;
+  }
+  table.scorecard td.out, table.scorecard th.out,
+  table.scorecard td.in, table.scorecard th.in,
+  table.scorecard td.tot, table.scorecard th.tot{
+    background:#EFE9D8; font-weight:700;
+  }
+  td.noncounting-cell{color:#A39A85; background:#F8F5EC;}
+  td.counting-cell{font-weight:700;}
+  .par-row td.label{background:#EFE9D8 !important;}
+  .par-row td.par-cell{background:#F3EFE2; color:var(--gold); font-weight:700; font-family:'JetBrains Mono',monospace;}
+  .hole-result{
+    width:22px; height:22px; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:#fff; margin:0 auto;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .hole-result.p1{background:var(--fairway);}
+  .hole-result.p2{background:var(--gold); color:var(--ink);}
+  .hole-result.halve{background:var(--halved);}
+  .hole-result.empty{background:#EFEAE0; color:#C8BFA9;}
+  .scorecard-legend{
+    display:flex; gap:18px; flex-wrap:wrap; align-items:center;
+    font-size:12px; color:#7A7363; margin-top:10px;
+  }
+  .scorecard-legend .key{display:flex; align-items:center; gap:6px;}
+  .scorecard-legend .swatch-box{
+    width:16px; height:16px; border-radius:4px; display:inline-block; border:1px solid var(--line);
+  }
+  .scorecard-legend .swatch-box.counts{border:2px solid var(--fairway-light); background:#fff;}
+  .scorecard-legend .swatch-box.nocounts{background:#F8F5EC;}
+  .match-header{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
+    margin-bottom:14px;
+  }
+  .match-header h3{font-size:20px;}
+  .status-line{margin-top:10px; font-size:14px; color:#5C5546;}
+
+  /* Leaderboard */
+  table.leaderboard{width:100%; border-collapse:collapse; font-size:15px;}
+  table.leaderboard th, table.leaderboard td{
+    padding:10px 12px; text-align:left; border-bottom:1px solid var(--line);
+  }
+  table.leaderboard th{
+    font-family:'Fraunces',serif; font-size:13px; text-transform:uppercase; letter-spacing:.06em;
+    color:#7A7363; font-weight:600;
+  }
+  table.leaderboard td.num, table.leaderboard th.num{text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700;}
+  table.leaderboard tr:first-child td{font-weight:700;}
+  table.leaderboard tr:first-child{background:rgba(201,162,39,0.12);}
+
+  .empty-state{
+    text-align:center; padding:40px 20px; color:#9A8C70;
+  }
+  .empty-state h4{color:#7A7363; margin-bottom:6px;}
+
+  @media (max-width: 640px){
+    .container{padding:14px;}
+    .card{padding:14px;}
+    header{padding:20px 14px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1 id="venueDisplay">LegendSimTours Pairs Matchplay</h1>
+    <div class="meta">
+      <span id="dateDisplay"></span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" data-tab="fixtures">Fixtures</button>
+    <button class="tab" data-tab="scoring">Scorecards</button>
+    <button class="tab" data-tab="leaderboard">Leaderboard</button>
+  </div>
+
+  <!-- FIXTURES -->
+  <section class="panel active" id="panel-fixtures">
+    <div id="fixturesContainer"></div>
+    <div id="fixturesEmpty" class="empty-state" style="display:none;">
+      <h4>No fixtures yet</h4>
+      <p>Check back once the tournament schedule has been published.</p>
+    </div>
+  </section>
+
+  <!-- SCORING -->
+  <section class="panel" id="panel-scoring">
+    <div class="card">
+      <h3>Select a match</h3>
+      <select id="matchSelect" onchange="renderScoring()">
+        <option value="">— choose a match —</option>
+      </select>
+    </div>
+    <div id="scoringContainer"></div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="panel" id="panel-leaderboard">
+    <div class="card">
+      <h3>Team standings</h3>
+      <div id="leaderboardContainer"></div>
+    </div>
+    <div class="card">
+      <h3>Match results</h3>
+      <div id="resultsContainer"></div>
+    </div>
+  </section>
+</div>
+
+<div id="loadError" class="container" style="display:none;">
+  <div class="card">
+    <h3>Couldn't load tournament data</h3>
+    <p style="color:#7A7363;">Make sure <code>tournament-data.json</code> has been exported and committed alongside this page.</p>
+  </div>
+</div>
+
+<script>
+/* ============ STATE ============ */
+let state = {
+  venue: '',
+  date: '',
+  teams: [],
+  matches: [],
+  par: {1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4,15:4,16:4,17:4,18:4}
+};
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab==='fixtures') renderFixtures();
+    if(tab.dataset.tab==='scoring') renderScoring();
+    if(tab.dataset.tab==='leaderboard') renderLeaderboard();
+  });
+});
+
+/* ============ HELPERS ============ */
+function escapeHTML(str){
+  const div = document.createElement('div');
+  div.textContent = str==null ? '' : String(str);
+  return div.innerHTML;
+}
+function teamById(id){ return state.teams.find(t=>t.id===id); }
+function playerById(teamId, playerId){
+  const team = teamById(teamId);
+  if(!team) return null;
+  return team.players.find(p=>p.id===playerId);
+}
+
+/* ============ FIXTURES ============ */
+function renderFixtures(){
+  const container = document.getElementById('fixturesContainer');
+  const empty = document.getElementById('fixturesEmpty');
+  container.innerHTML = '';
+  if(state.matches.length===0){ empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  const rounds = {};
+  state.matches.forEach(m=>{
+    rounds[m.round] = rounds[m.round] || [];
+    rounds[m.round].push(m);
+  });
+
+  Object.keys(rounds).sort((a,b)=>a-b).forEach(roundNum=>{
+    const label = document.createElement('div');
+    label.className='round-label';
+    label.textContent = `Week ${roundNum}`;
+    container.appendChild(label);
+
+    // Group this round's matches by unordered team-vs-team pairing, regardless of
+    // which team is "home" (teamA) for any individual match.
+    const groups = [];
+    const groupIndex = {};
+    rounds[roundNum].forEach(m=>{
+      const key = [m.teamA, m.teamB].sort().join('|');
+      if(!(key in groupIndex)){
+        groupIndex[key] = groups.length;
+        groups.push({left: m.teamA, right: m.teamB, matches:[]});
+      }
+      groups[groupIndex[key]].matches.push(m);
+    });
+
+    groups.forEach(group=>{
+      const tLeft = teamById(group.left), tRight = teamById(group.right);
+      if(!tLeft || !tRight) return;
+      const card = document.createElement('div');
+      card.className='fixture-card';
+
+      const matchRows = group.matches.map((m, i)=>{
+        const status = matchStatus(m);
+        const leftSide = (m.teamA===group.left) ? 'A' : 'B';
+        const rightSide = leftSide==='A' ? 'B' : 'A';
+        return `
+          <div class="fixture-pair-row">
+            <div class="fixture-pair">
+              <span class="fixture-pair-num">M${i+1}</span>
+              ${pairLabel(m, leftSide)} <span style="color:#C8BFA9;">v</span> ${pairLabel(m, rightSide)}
+            </div>
+            <span class="pill ${status.cls}">${status.label}</span>
+          </div>
+        `;
+      }).join('');
+
+      card.innerHTML = `
+        <div class="fixture-teams">
+          <span class="swatch" style="background:${tLeft.color}"></span>${escapeHTML(tLeft.name)}
+          <span style="color:#C8BFA9;">vs</span>
+          <span class="swatch" style="background:${tRight.color}"></span>${escapeHTML(tRight.name)}
+        </div>
+        <div class="fixture-pair-rows">${matchRows}</div>
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+function pairLabel(m, side){
+  const teamId = side==='A' ? m.teamA : m.teamB;
+  const pair = side==='A' ? m.pairA : m.pairB;
+  const team = teamById(teamId);
+  if(!team) return '';
+  const names = pair.map(pid=>{
+    const p = playerById(teamId, pid);
+    return p ? p.name : '?';
+  });
+  return `<span class="pair-names">${escapeHTML(names.join(' & '))}</span>`;
+}
+
+/* ============ SCORING ENGINE (read-only) ============ */
+// Returns array of 18 hole results: 'A' win, 'B' win, 'halve', or null (not played)
+// Only the "counting" score for each hole is used: player index 0 (Player 1) on odd holes,
+// player index 1 (Player 2) on even holes — for both teams' pairs.
+function computeHoleResults(m){
+  const results = [];
+  const countingIdx = (h)=> (h % 2 === 1) ? 0 : 1;
+  for(let h=1; h<=18; h++){
+    const rec = m.scores[h];
+    if(!rec) { results.push(null); continue; }
+    const idx = countingIdx(h);
+    const scoreA = rec['A'+idx];
+    const scoreB = rec['B'+idx];
+    if(scoreA == null || scoreB == null || scoreA==='' || scoreB===''){
+      results.push(null); continue;
+    }
+    const sa = Number(scoreA), sb = Number(scoreB);
+    if(sa < sb) results.push('A');
+    else if(sb < sa) results.push('B');
+    else results.push('halve');
+  }
+  return results;
+}
+
+function computeMatchState(m){
+  const holeResults = computeHoleResults(m);
+  let diff = 0;
+  let lastPlayedHole = 0;
+  let contiguousThru = 0;
+  let hasGap = false;
+  let decidedAtHole = null;
+  const running = [];
+  for(let h=1; h<=18; h++){
+    const r = holeResults[h-1];
+    if(r===null){
+      hasGap = true;
+      running.push(diff);
+      continue;
+    }
+    lastPlayedHole = h;
+    if(r==='A') diff += 1;
+    else if(r==='B') diff -= 1;
+    running.push(diff);
+
+    if(!hasGap){
+      contiguousThru = h;
+      if(decidedAtHole===null){
+        const holesRemaining = 18 - h;
+        const lead = Math.abs(diff);
+        if(lead > holesRemaining){
+          decidedAtHole = h;
+        }
+      }
+    }
+  }
+  return {holeResults, running, diff, lastPlayedHole, contiguousThru, decidedAtHole};
+}
+
+function matchStatus(m){
+  const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
+  const st = computeMatchState(m);
+
+  if(m.finalized && m.result){
+    const r = m.result;
+    if(r.type==='halved') return {label:'Halved', cls:'final', value:r};
+    const winner = r.winner===m.teamA ? teamA : teamB;
+    return {label:`${escapeHTML(winner.name)} won ${r.label}`, cls: (r.winner===m.teamA?'up':'down')+' final', value:r};
+  }
+
+  if(st.contiguousThru===0){
+    return {label:'Not started', cls:''};
+  }
+
+  if(st.decidedAtHole !== null){
+    const holesRemaining = 18 - st.decidedAtHole;
+    const leadAtDecision = Math.abs(st.running[st.decidedAtHole-1]);
+    const margin = leadAtDecision;
+    const remaining = holesRemaining;
+    const label = `${margin}&${remaining}`;
+    return {label: `${st.diff>0?'A':'B'} wins ${label}`, cls: st.diff>0?'up':'down', autofinal:true};
+  }
+
+  if(st.contiguousThru===18){
+    if(st.diff===0) return {label:'All Square — final', cls:'', autofinal:true};
+    const margin = Math.abs(st.diff);
+    return {label:`${st.diff>0?'A':'B'} wins ${margin}&0`, cls: st.diff>0?'up':'down', autofinal:true};
+  }
+
+  const holesPlayed = st.contiguousThru;
+  const thru = `thru ${holesPlayed}`;
+  if(st.diff===0) return {label:`AS ${thru}`, cls:''};
+  const dir = st.diff>0 ? 'up' : 'down';
+  return {label:`${Math.abs(st.diff)}↑ ${thru}`, cls:dir};
+}
+
+/* ============ SCORECARD UI (read-only) ============ */
+function renderMatchSelect(){
+  const select = document.getElementById('matchSelect');
+  const current = select.value;
+  select.innerHTML = '<option value="">— choose a match —</option>';
+  const sorted = state.matches.slice().sort((a,b)=>a.round-b.round);
+  sorted.forEach(m=>{
+    const ta = teamById(m.teamA), tb = teamById(m.teamB);
+    if(!ta||!tb) return;
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    const status = matchStatus(m);
+    const namesA = (m.pairA||[]).map(pid=>{ const p=playerById(m.teamA,pid); return p?p.name:'?'; }).join(' & ');
+    const namesB = (m.pairB||[]).map(pid=>{ const p=playerById(m.teamB,pid); return p?p.name:'?'; }).join(' & ');
+    opt.textContent = `Week ${m.round}: ${ta.name} (${namesA}) vs ${tb.name} (${namesB})${m.finalized ? ' — ' + status.label : ''}`;
+    select.appendChild(opt);
+  });
+  if(state.matches.find(m=>m.id===current)) select.value = current;
+}
+
+function renderScoring(){
+  renderMatchSelect();
+  const container = document.getElementById('scoringContainer');
+  const select = document.getElementById('matchSelect');
+  const matchId = select.value;
+  container.innerHTML = '';
+
+  if(!matchId){
+    container.innerHTML = `<div class="empty-state"><h4>No match selected</h4><p>Choose a match above to view its scorecard.</p></div>`;
+    return;
+  }
+  const m = state.matches.find(mm=>mm.id===matchId);
+  if(!m) return;
+  const ta = teamById(m.teamA), tb = teamById(m.teamB);
+  const pA = m.pairA.map(pid=>playerById(m.teamA,pid));
+  const pB = m.pairB.map(pid=>playerById(m.teamB,pid));
+
+  const card = document.createElement('div');
+  card.className='card';
+
+  const status = matchStatus(m);
+
+  card.innerHTML = `
+    <div class="match-header">
+      <h3><span class="swatch" style="background:${ta.color}"></span>${escapeHTML(ta.name)} <span style="color:#C8BFA9;">vs</span> <span class="swatch" style="background:${tb.color}"></span>${escapeHTML(tb.name)}</h3>
+      <span class="pill ${status.cls}">${status.label}</span>
+    </div>
+    <div class="scorecard-wrap"></div>
+    <div class="scorecard-legend">
+      <span class="key"><span class="swatch-box counts"></span> Counts toward match result</span>
+      <span class="key"><span class="swatch-box nocounts"></span> Recorded for the round, doesn't affect the match</span>
+    </div>
+    <div class="status-line" id="statusLine"></div>
+  `;
+  container.appendChild(card);
+  card.querySelector('.scorecard-wrap').appendChild(buildScorecardTable(m, pA, pB));
+
+  updateStatusLine(m);
+}
+
+function buildScorecardTable(m, pA, pB){
+  const table = document.createElement('table');
+  table.className='scorecard';
+
+  let thead = '<thead><tr><th>Player</th>';
+  for(let h=1; h<=9; h++) thead += `<th>${h}</th>`;
+  thead += `<th class="out">OUT</th>`;
+  for(let h=10; h<=18; h++) thead += `<th>${h}</th>`;
+  thead += `<th class="in">IN</th><th class="tot">TOT</th></tr></thead>`;
+  table.innerHTML = thead;
+
+  const tbody = document.createElement('tbody');
+
+  tbody.appendChild(buildParRow());
+
+  [
+    {team:'A', idx:0, player:pA[0], oddEven:'odd'},
+    {team:'A', idx:1, player:pA[1], oddEven:'even'},
+  ].forEach(rowDef=>tbody.appendChild(buildPlayerRow(m, rowDef)));
+
+  tbody.appendChild(buildResultRow(m));
+
+  [
+    {team:'B', idx:0, player:pB[0], oddEven:'odd'},
+    {team:'B', idx:1, player:pB[1], oddEven:'even'},
+  ].forEach(rowDef=>tbody.appendChild(buildPlayerRow(m, rowDef)));
+
+  table.appendChild(tbody);
+  return table;
+}
+
+function buildParRow(){
+  const tr = document.createElement('tr');
+  tr.className = 'par-row';
+  let html = `<td class="label" style="background:#EFE9D8;">Par</td>`;
+  let outSum=0, inSum=0, total=0;
+
+  for(let h=1; h<=9; h++){
+    const val = Number(state.par[h]) || 0;
+    html += `<td class="par-cell">${val||''}</td>`;
+    outSum += val;
+  }
+  total += outSum;
+  html += `<td class="out">${outSum}</td>`;
+  for(let h=10; h<=18; h++){
+    const val = Number(state.par[h]) || 0;
+    html += `<td class="par-cell">${val||''}</td>`;
+    inSum += val;
+  }
+  total += inSum;
+  html += `<td class="in">${inSum}</td>`;
+  html += `<td class="tot">${total}</td>`;
+  tr.innerHTML = html;
+  return tr;
+}
+
+function buildPlayerRow(m, {team, idx, player, oddEven}){
+  const tr = document.createElement('tr');
+  let html = `<td class="label">${escapeHTML(player ? player.name : '?')} <span style="color:#B7AE99; font-size:11px;">(counts: ${oddEven==='odd'?'1,3,5...17':'2,4,6...18'})</span></td>`;
+  let outSum=0, inSum=0, total=0;
+
+  for(let h=1; h<=9; h++){
+    const v = getScore(m,h,team,idx);
+    const isCounting = (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${v!=null?v:''}</td>`;
+    if(v!=null){ outSum+=v; total+=v; }
+  }
+  html += `<td class="out">${outSum||''}</td>`;
+  for(let h=10; h<=18; h++){
+    const v = getScore(m,h,team,idx);
+    const isCounting = (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${v!=null?v:''}</td>`;
+    if(v!=null){ inSum+=v; total+=v; }
+  }
+  html += `<td class="in">${inSum||''}</td>`;
+  html += `<td class="tot">${total||''}</td>`;
+  tr.innerHTML = html;
+  return tr;
+}
+
+function getScore(m, hole, team, idx){
+  const rec = m.scores[hole];
+  if(!rec) return null;
+  const key = team+idx;
+  const v = rec[key];
+  return (v===undefined || v==='' || v===null) ? null : Number(v);
+}
+
+function buildResultRow(m){
+  const tr = document.createElement('tr');
+  const st = computeMatchState(m);
+  const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
+  let html = `<td class="label" style="background:#EFE9D8;">Hole result</td>`;
+  for(let h=1; h<=9; h++) html += resultCellHTML(st, h, teamA, teamB);
+  html += `<td class="out"></td>`;
+  for(let h=10; h<=18; h++) html += resultCellHTML(st, h, teamA, teamB);
+  html += `<td class="in"></td><td class="tot"></td>`;
+  tr.innerHTML = html;
+  return tr;
+}
+
+function contrastTextColor(hex){
+  if(!hex) return '#fff';
+  const c = hex.replace('#','');
+  if(c.length!==6) return '#fff';
+  const r = parseInt(c.substr(0,2),16);
+  const g = parseInt(c.substr(2,2),16);
+  const b = parseInt(c.substr(4,2),16);
+  const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return luminance > 0.6 ? '#1B2B1F' : '#fff';
+}
+
+function resultCellHTML(st, h, teamA, teamB){
+  const r = st.holeResults[h-1];
+  let cls='empty', label='', style='';
+  if(r==='A'){
+    label='A';
+    const bg = teamA ? teamA.color : null;
+    style = bg ? `background:${bg}; color:${contrastTextColor(bg)};` : '';
+    if(!bg) cls='p1';
+  } else if(r==='B'){
+    label='B';
+    const bg = teamB ? teamB.color : null;
+    style = bg ? `background:${bg}; color:${contrastTextColor(bg)};` : '';
+    if(!bg) cls='p2';
+  } else if(r==='halve'){
+    cls='halve'; label='½';
+  }
+  return `<td><span class="hole-result ${cls}" style="${style}">${label}</span></td>`;
+}
+
+function updateStatusLine(m){
+  const el = document.getElementById('statusLine');
+  if(!el) return;
+  const st = computeMatchState(m);
+  const ta = teamById(m.teamA), tb = teamById(m.teamB);
+  if(st.contiguousThru===0){
+    el.textContent = 'No scores entered yet for this match.';
+    return;
+  }
+  let txt = `Through hole ${st.contiguousThru}: `;
+  if(st.diff===0) txt += 'All Square.';
+  else txt += `${st.diff>0?ta.name:tb.name} ${Math.abs(st.diff)} up.`;
+  if(m.finalized && m.result){
+    if(m.result.type==='halved') txt = 'Final result: Halved (All Square through 18).';
+    else {
+      const winner = m.result.winner===m.teamA ? ta : tb;
+      txt = `Final result: ${winner.name} won ${m.result.label}.`;
+    }
+  }
+  el.textContent = txt;
+}
+
+/* ============ LEADERBOARD ============ */
+function renderLeaderboard(){
+  const lbContainer = document.getElementById('leaderboardContainer');
+  const resContainer = document.getElementById('resultsContainer');
+
+  if(state.teams.length===0){
+    lbContainer.innerHTML = '<div class="empty-state"><h4>No teams yet</h4><p>Check back once the tournament has been set up.</p></div>';
+    resContainer.innerHTML = '';
+    return;
+  }
+
+  const standings = {};
+  state.teams.forEach(t=>{
+    standings[t.id] = {team:t, points:0, played:0, won:0, halved:0, lost:0};
+  });
+
+  const resultsRows = [];
+
+  state.matches.forEach(m=>{
+    const ta = teamById(m.teamA), tb = teamById(m.teamB);
+    if(!ta || !tb) return;
+    if(!m.finalized || !m.result) return;
+
+    standings[ta.id].played++;
+    standings[tb.id].played++;
+
+    if(m.result.type==='halved'){
+      standings[ta.id].points += 1;
+      standings[tb.id].points += 1;
+      standings[ta.id].halved++;
+      standings[tb.id].halved++;
+      resultsRows.push({m, ta, tb, text:`Halved (AS)`});
+    } else {
+      const winnerId = m.result.winner;
+      const loserId = winnerId===m.teamA ? m.teamB : m.teamA;
+      standings[winnerId].points += 2;
+      standings[winnerId].won++;
+      standings[loserId].lost++;
+      const winnerTeam = teamById(winnerId);
+      resultsRows.push({m, ta, tb, text:`${winnerTeam.name} won ${m.result.label}`});
+    }
+  });
+
+  const rows = Object.values(standings).sort((a,b)=>{
+    if(b.points!==a.points) return b.points-a.points;
+    if(b.won!==a.won) return b.won-a.won;
+    return a.team.name.localeCompare(b.team.name);
+  });
+
+  let html = `<table class="leaderboard"><thead><tr>
+    <th>Team</th><th class="num">Pld</th><th class="num">W</th><th class="num">H</th><th class="num">L</th><th class="num">Pts</th>
+  </tr></thead><tbody>`;
+  rows.forEach(r=>{
+    html += `<tr>
+      <td><span class="swatch" style="background:${r.team.color}"></span>${escapeHTML(r.team.name)}</td>
+      <td class="num">${r.played}</td>
+      <td class="num">${r.won}</td>
+      <td class="num">${r.halved}</td>
+      <td class="num">${r.lost}</td>
+      <td class="num">${r.points}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  lbContainer.innerHTML = html;
+
+  if(resultsRows.length===0){
+    resContainer.innerHTML = '<div class="empty-state"><h4>No results yet</h4><p>Finalized matches will appear here.</p></div>';
+  } else {
+    resContainer.innerHTML = resultsRows.map(r=>`
+      <div class="fixture-card" style="margin-top:0;">
+        <div class="fixture-pair-row" style="background:none; padding:0;">
+          <div class="fixture-teams" style="font-size:16px;">
+            <span class="swatch" style="background:${r.ta.color}"></span>${escapeHTML(r.ta.name)}
+            <span style="color:#C8BFA9;">vs</span>
+            <span class="swatch" style="background:${r.tb.color}"></span>${escapeHTML(r.tb.name)}
+          </div>
+          <span class="pill final ${r.m.result.winner===r.m.teamA?'up':(r.m.result.winner===r.m.teamB?'down':'')}">${r.text}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+/* ============ LOAD DATA ============ */
+async function loadData(){
+  try{
+    const res = await fetch('tournament-data.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('Failed to fetch tournament-data.json');
+    const data = await res.json();
+    state = Object.assign({venue:'',date:'',teams:[],matches:[],par:{}}, data);
+    const DEFAULT_PAR = {1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4,15:4,16:4,17:4,18:4};
+    state.par = Object.assign({...DEFAULT_PAR}, state.par || {});
+
+    document.getElementById('venueDisplay').textContent = state.venue ? state.venue : 'LegendSimTours Pairs Matchplay';
+    if(state.date){
+      const d = new Date(state.date);
+      document.getElementById('dateDisplay').textContent = isNaN(d) ? state.date : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+    }
+
+    renderFixtures();
+    renderMatchSelect();
+    renderScoring();
+    renderLeaderboard();
+  }catch(err){
+    console.error(err);
+    document.querySelector('.tabs').style.display='none';
+    document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+    document.getElementById('loadError').style.display='block';
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
