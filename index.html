@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LegendSimTours Pairs Matchplay</title>
+<title>Clubhouse Cup — Tournament</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -139,6 +139,13 @@
     font-weight:700; margin:18px 0 4px;
   }
   .round-label:first-child{margin-top:0;}
+  .week-header{
+    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px 16px;
+    margin:18px 0 4px;
+  }
+  .week-header:first-child{margin-top:0;}
+  .week-header .round-label{margin:0;}
+  .week-meta{font-size:13px; color:#7A7363;}
 
   /* Scorecard */
   .scorecard-wrap{overflow-x:auto;}
@@ -171,16 +178,13 @@
   td.counting-cell{font-weight:700;}
   .par-row td.label{background:#EFE9D8 !important;}
   .par-row td.par-cell{background:#F3EFE2; color:var(--gold); font-weight:700; font-family:'JetBrains Mono',monospace;}
-  .hole-result{
-    width:22px; height:22px; border-radius:50%;
+  .hole-status{
+    min-width:30px; height:22px; padding:0 5px; border-radius:11px;
     display:inline-flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:700; color:#fff; margin:0 auto;
-    font-family:'JetBrains Mono',monospace;
+    font-size:10px; font-weight:700; color:#fff; margin:0 auto;
+    font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;
   }
-  .hole-result.p1{background:var(--fairway);}
-  .hole-result.p2{background:var(--gold); color:var(--ink);}
-  .hole-result.halve{background:var(--halved);}
-  .hole-result.empty{background:#EFEAE0; color:#C8BFA9;}
+  .hole-status.empty{background:#EFEAE0; color:#C8BFA9; min-width:22px; width:22px; padding:0;}
   .scorecard-legend{
     display:flex; gap:18px; flex-wrap:wrap; align-items:center;
     font-size:12px; color:#7A7363; margin-top:10px;
@@ -227,10 +231,7 @@
 
 <header>
   <div class="wrap">
-    <h1 id="venueDisplay">LegendSimTours Pairs Matchplay</h1>
-    <div class="meta">
-      <span id="dateDisplay"></span>
-    </div>
+    <h1 id="venueDisplay">Clubhouse Cup</h1>
   </div>
 </header>
 
@@ -267,17 +268,13 @@
       <h3>Team standings</h3>
       <div id="leaderboardContainer"></div>
     </div>
-    <div class="card">
-      <h3>Match results</h3>
-      <div id="resultsContainer"></div>
-    </div>
   </section>
 </div>
 
 <div id="loadError" class="container" style="display:none;">
   <div class="card">
     <h3>Couldn't load tournament data</h3>
-    <p style="color:#7A7363;">Make sure <code>tournament-data.json</code> has been exported and committed alongside this page.</p>
+    <p style="color:#7A7363;">Make sure <code>golf-tournament-data.json</code> has been exported and committed alongside this page.</p>
   </div>
 </div>
 
@@ -332,10 +329,20 @@ function renderFixtures(){
   });
 
   Object.keys(rounds).sort((a,b)=>a-b).forEach(roundNum=>{
-    const label = document.createElement('div');
-    label.className='round-label';
-    label.textContent = `Week ${roundNum}`;
-    container.appendChild(label);
+    const wInfo = (state.weekInfo && state.weekInfo[roundNum]) || {};
+    const weekHeader = document.createElement('div');
+    weekHeader.className = 'week-header';
+    const metaParts = [];
+    if(wInfo.venue) metaParts.push(escapeHTML(wInfo.venue));
+    if(wInfo.date){
+      const d = new Date(wInfo.date);
+      metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
+    }
+    weekHeader.innerHTML = `
+      <div class="round-label">Week ${roundNum}</div>
+      <div class="week-meta">${metaParts.join(' &middot; ')}</div>
+    `;
+    container.appendChild(weekHeader);
 
     // Group this round's matches by unordered team-vs-team pairing, regardless of
     // which team is "home" (teamA) for any individual match.
@@ -357,7 +364,7 @@ function renderFixtures(){
       card.className='fixture-card';
 
       const matchRows = group.matches.map((m, i)=>{
-        const status = matchStatus(m);
+        const pill = fixtureResultPill(m);
         const leftSide = (m.teamA===group.left) ? 'A' : 'B';
         const rightSide = leftSide==='A' ? 'B' : 'A';
         return `
@@ -365,8 +372,8 @@ function renderFixtures(){
             <div class="fixture-pair">
               <span class="fixture-pair-num">M${i+1}</span>
               ${pairLabel(m, leftSide)} <span style="color:#C8BFA9;">v</span> ${pairLabel(m, rightSide)}
+              ${pill}
             </div>
-            <span class="pill ${status.cls}">${status.label}</span>
           </div>
         `;
       }).join('');
@@ -382,6 +389,36 @@ function renderFixtures(){
       container.appendChild(card);
     });
   });
+}
+
+// Returns a small colored pill showing just the result/score (e.g. "3&2", "1 up", "AS thru 12"),
+// colored with the leading/winning team's color.
+function fixtureResultPill(m){
+  const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
+  const st = computeMatchState(m);
+
+  let text, bg, textColor;
+  if(m.finalized && m.result){
+    const r = m.result;
+    if(r.type==='halved'){
+      text = 'Halved'; bg = '#9A8C70'; textColor = '#fff';
+    } else {
+      const winnerTeam = r.winner===m.teamA ? teamA : teamB;
+      text = r.label;
+      bg = winnerTeam ? winnerTeam.color : '#9A8C70';
+      textColor = contrastTextColor(bg);
+    }
+  } else if(st.contiguousThru===0){
+    text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
+  } else if(st.diff===0){
+    text = `AS thru ${st.contiguousThru}`; bg = '#9A8C70'; textColor = '#fff';
+  } else {
+    const leadingTeam = st.diff>0 ? teamA : teamB;
+    text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
+    bg = leadingTeam ? leadingTeam.color : '#2E6B3E';
+    textColor = contrastTextColor(bg);
+  }
+  return `<span class="pill" style="background:${bg}; color:${textColor};">${escapeHTML(text)}</span>`;
 }
 
 function pairLabel(m, side){
@@ -458,6 +495,13 @@ function matchStatus(m){
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
   const st = computeMatchState(m);
 
+/* Formats a matchplay result margin. When the match concludes exactly on the
+   18th hole (remaining===0), conventionally shown as "N up" rather than "N&0". */
+function formatMatchMargin(margin, remaining){
+  if(remaining===0) return `${margin} up`;
+  return `${margin}&${remaining}`;
+}
+
   if(m.finalized && m.result){
     const r = m.result;
     if(r.type==='halved') return {label:'Halved', cls:'final', value:r};
@@ -474,14 +518,14 @@ function matchStatus(m){
     const leadAtDecision = Math.abs(st.running[st.decidedAtHole-1]);
     const margin = leadAtDecision;
     const remaining = holesRemaining;
-    const label = `${margin}&${remaining}`;
+    const label = formatMatchMargin(margin, remaining);
     return {label: `${st.diff>0?'A':'B'} wins ${label}`, cls: st.diff>0?'up':'down', autofinal:true};
   }
 
   if(st.contiguousThru===18){
     if(st.diff===0) return {label:'All Square — final', cls:'', autofinal:true};
     const margin = Math.abs(st.diff);
-    return {label:`${st.diff>0?'A':'B'} wins ${margin}&0`, cls: st.diff>0?'up':'down', autofinal:true};
+    return {label:`${st.diff>0?'A':'B'} wins ${formatMatchMargin(margin, 0)}`, cls: st.diff>0?'up':'down', autofinal:true};
   }
 
   const holesPlayed = st.contiguousThru;
@@ -643,10 +687,10 @@ function buildResultRow(m){
   const tr = document.createElement('tr');
   const st = computeMatchState(m);
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
-  let html = `<td class="label" style="background:#EFE9D8;">Hole result</td>`;
-  for(let h=1; h<=9; h++) html += resultCellHTML(st, h, teamA, teamB);
+  let html = `<td class="label" style="background:#EFE9D8;">Match status</td>`;
+  for(let h=1; h<=9; h++) html += statusCellHTML(st, h, teamA, teamB);
   html += `<td class="out"></td>`;
-  for(let h=10; h<=18; h++) html += resultCellHTML(st, h, teamA, teamB);
+  for(let h=10; h<=18; h++) html += statusCellHTML(st, h, teamA, teamB);
   html += `<td class="in"></td><td class="tot"></td>`;
   tr.innerHTML = html;
   return tr;
@@ -663,23 +707,25 @@ function contrastTextColor(hex){
   return luminance > 0.6 ? '#1B2B1F' : '#fff';
 }
 
-function resultCellHTML(st, h, teamA, teamB){
+// Shows the running match state after this hole: a colored pill (leading team's
+// color) with "Nup", or a neutral grey "AS" if level. Empty if the hole hasn't
+// been resolved yet.
+function statusCellHTML(st, h, teamA, teamB){
   const r = st.holeResults[h-1];
-  let cls='empty', label='', style='';
-  if(r==='A'){
-    label='A';
-    const bg = teamA ? teamA.color : null;
-    style = bg ? `background:${bg}; color:${contrastTextColor(bg)};` : '';
-    if(!bg) cls='p1';
-  } else if(r==='B'){
-    label='B';
-    const bg = teamB ? teamB.color : null;
-    style = bg ? `background:${bg}; color:${contrastTextColor(bg)};` : '';
-    if(!bg) cls='p2';
-  } else if(r==='halve'){
-    cls='halve'; label='½';
+  if(r===null){
+    return `<td><span class="hole-status empty"></span></td>`;
   }
-  return `<td><span class="hole-result ${cls}" style="${style}">${label}</span></td>`;
+  const diff = st.running[h-1];
+  let label, bg, textColor;
+  if(diff===0){
+    label = 'AS'; bg = '#9A8C70'; textColor = '#fff';
+  } else {
+    const leadingTeam = diff>0 ? teamA : teamB;
+    label = `${Math.abs(diff)}up`;
+    bg = leadingTeam ? leadingTeam.color : '#9A8C70';
+    textColor = contrastTextColor(bg);
+  }
+  return `<td><span class="hole-status" style="background:${bg}; color:${textColor};">${label}</span></td>`;
 }
 
 function updateStatusLine(m){
@@ -707,11 +753,9 @@ function updateStatusLine(m){
 /* ============ LEADERBOARD ============ */
 function renderLeaderboard(){
   const lbContainer = document.getElementById('leaderboardContainer');
-  const resContainer = document.getElementById('resultsContainer');
 
   if(state.teams.length===0){
     lbContainer.innerHTML = '<div class="empty-state"><h4>No teams yet</h4><p>Check back once the tournament has been set up.</p></div>';
-    resContainer.innerHTML = '';
     return;
   }
 
@@ -719,8 +763,6 @@ function renderLeaderboard(){
   state.teams.forEach(t=>{
     standings[t.id] = {team:t, points:0, played:0, won:0, halved:0, lost:0};
   });
-
-  const resultsRows = [];
 
   state.matches.forEach(m=>{
     const ta = teamById(m.teamA), tb = teamById(m.teamB);
@@ -735,15 +777,12 @@ function renderLeaderboard(){
       standings[tb.id].points += 1;
       standings[ta.id].halved++;
       standings[tb.id].halved++;
-      resultsRows.push({m, ta, tb, text:`Halved (AS)`});
     } else {
       const winnerId = m.result.winner;
       const loserId = winnerId===m.teamA ? m.teamB : m.teamA;
       standings[winnerId].points += 2;
       standings[winnerId].won++;
       standings[loserId].lost++;
-      const winnerTeam = teamById(winnerId);
-      resultsRows.push({m, ta, tb, text:`${winnerTeam.name} won ${m.result.label}`});
     }
   });
 
@@ -768,40 +807,20 @@ function renderLeaderboard(){
   });
   html += '</tbody></table>';
   lbContainer.innerHTML = html;
-
-  if(resultsRows.length===0){
-    resContainer.innerHTML = '<div class="empty-state"><h4>No results yet</h4><p>Finalized matches will appear here.</p></div>';
-  } else {
-    resContainer.innerHTML = resultsRows.map(r=>`
-      <div class="fixture-card" style="margin-top:0;">
-        <div class="fixture-pair-row" style="background:none; padding:0;">
-          <div class="fixture-teams" style="font-size:16px;">
-            <span class="swatch" style="background:${r.ta.color}"></span>${escapeHTML(r.ta.name)}
-            <span style="color:#C8BFA9;">vs</span>
-            <span class="swatch" style="background:${r.tb.color}"></span>${escapeHTML(r.tb.name)}
-          </div>
-          <span class="pill final ${r.m.result.winner===r.m.teamA?'up':(r.m.result.winner===r.m.teamB?'down':'')}">${r.text}</span>
-        </div>
-      </div>
-    `).join('');
-  }
 }
 
 /* ============ LOAD DATA ============ */
 async function loadData(){
   try{
-    const res = await fetch('tournament-data.json', {cache:'no-store'});
-    if(!res.ok) throw new Error('Failed to fetch tournament-data.json');
+    const res = await fetch('golf-tournament-data.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('Failed to fetch golf-tournament-data.json');
     const data = await res.json();
-    state = Object.assign({venue:'',date:'',teams:[],matches:[],par:{}}, data);
+    state = Object.assign({tournamentName:'',teams:[],matches:[],par:{},weekInfo:{}}, data);
     const DEFAULT_PAR = {1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4,15:4,16:4,17:4,18:4};
     state.par = Object.assign({...DEFAULT_PAR}, state.par || {});
+    state.weekInfo = state.weekInfo || {};
 
-    document.getElementById('venueDisplay').textContent = state.venue ? state.venue : 'LegendSimTours Pairs Matchplay';
-    if(state.date){
-      const d = new Date(state.date);
-      document.getElementById('dateDisplay').textContent = isNaN(d) ? state.date : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
-    }
+    document.getElementById('venueDisplay').textContent = state.tournamentName ? state.tournamentName : 'Clubhouse Cup';
 
     renderFixtures();
     renderMatchSelect();
