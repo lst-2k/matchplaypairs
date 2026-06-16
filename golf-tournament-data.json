@@ -1,6 +1,5 @@
 {
-  "venue": "The Devil's Pulpit",
-  "date": "2026-06-08",
+  "tournamentName": "Legend Sim Tours, Matchplay Pairs",
   "teams": [
     {
       "id": "id1_iwnzp",
@@ -1098,5 +1097,17 @@
     "16": 4,
     "17": 4,
     "18": 4
-  }
+  },
+  "weekInfo": {
+    "1": {
+      "venue": "Devils Pulpit",
+      "date": "2026-06-08"
+    },
+    "2": {
+      "venue": "Nags Head Golf Links",
+      "date": "2026-06-15"
+    }
+  },
+  "venue": "The Devil's Pulpit",
+  "date": "2026-06-08"
 }
