@@ -403,8 +403,12 @@ function renderFixtures(){
       const d = new Date(wInfo.date);
       metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
     }
+    
+    // Restored the format style next to the week number (e.g., Week 1 — Alternative)
+    const formatStr = wInfo.format ? ` &mdash; ${escapeHTML(wInfo.format)}` : '';
+    
     weekHeader.innerHTML = `
-      <div class="round-label">Week ${roundNum}</div>
+      <div class="round-label">Week ${roundNum}${formatStr}</div>
       <div class="week-meta">${metaParts.join(' &middot; ')}</div>
     `;
     container.appendChild(weekHeader);
@@ -433,34 +437,38 @@ function renderFixtures(){
         
         const leftPair = leftSide==='A' ? m.pairA : m.pairB;
         const leftTeamId = leftSide==='A' ? m.teamA : m.teamB;
+        const leftTeam = teamById(leftTeamId);
         const leftPlayer1 = playerById(leftTeamId, leftPair[0]);
         const leftPlayer2 = playerById(leftTeamId, leftPair[1]);
         
         const rightPair = rightSide==='A' ? m.pairA : m.pairB;
         const rightTeamId = rightSide==='A' ? m.teamA : m.teamB;
+        const rightTeam = teamById(rightTeamId);
         const rightPlayer1 = playerById(rightTeamId, rightPair[0]);
         const rightPlayer2 = playerById(rightTeamId, rightPair[1]);
         
         const pills = getFixtureRowPills(m, leftTeamId, rightTeamId);
         
+        // Dynamic team colors for text strings
+        const leftColor = leftTeam ? leftTeam.color : 'var(--ink)';
+        const rightColor = rightTeam ? rightTeam.color : 'var(--ink)';
+        
         return `
           <div class="fixture-match-row">
-            <span class="fixture-pair-num">M${i+1}</span>
-            
             <div class="fixture-pill-container left">
               ${pills.leftHtml}
             </div>
             
             <div class="fixture-players left-align">
-              <div class="player-name">${escapeHTML(leftPlayer1 ? leftPlayer1.name : '?')}</div>
-              ${leftPlayer2 ? `<div class="player-name" style="color:#7A7363; font-weight:400; margin-top:1px;">${escapeHTML(leftPlayer2.name)}</div>` : ''}
+              <div class="player-name" style="color: ${leftColor};">${escapeHTML(leftPlayer1 ? leftPlayer1.name : '?')}</div>
+              ${leftPlayer2 ? `<div class="player-name" style="color: ${leftColor}; opacity: 0.75; font-weight:400; margin-top:1px;">${escapeHTML(leftPlayer2.name)}</div>` : ''}
             </div>
             
             <div class="fixture-vs">v</div>
             
             <div class="fixture-players right-align">
-              <div class="player-name">${escapeHTML(rightPlayer1 ? rightPlayer1.name : '?')}</div>
-              ${rightPlayer2 ? `<div class="player-name" style="color:#7A7363; font-weight:400; margin-top:1px;">${escapeHTML(rightPlayer2.name)}</div>` : ''}
+              <div class="player-name" style="color: ${rightColor};">${escapeHTML(rightPlayer1 ? rightPlayer1.name : '?')}</div>
+              ${rightPlayer2 ? `<div class="player-name" style="color: ${rightColor}; opacity: 0.75; font-weight:400; margin-top:1px;">${escapeHTML(rightPlayer2.name)}</div>` : ''}
             </div>
             
             <div class="fixture-pill-container right">
