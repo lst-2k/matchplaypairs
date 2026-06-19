@@ -330,6 +330,9 @@ function renderFixtures(){
 
   Object.keys(rounds).sort((a,b)=>a-b).forEach(roundNum=>{
     const wInfo = (state.weekInfo && state.weekInfo[roundNum]) || {};
+    // 💡 Fetch the match play format chosen for this round
+    const formatName = (state.weekFormat && state.weekFormat[roundNum]) || ''; 
+    
     const weekHeader = document.createElement('div');
     weekHeader.className = 'week-header';
     const metaParts = [];
@@ -338,8 +341,12 @@ function renderFixtures(){
       const d = new Date(wInfo.date);
       metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
     }
+
+    // 💡 Format the text string if a layout format exists
+    const formatStr = formatName ? `, ${escapeHTML(formatName)}` : '';
+
     weekHeader.innerHTML = `
-      <div class="round-label">Week ${roundNum}</div>
+      <div class="round-label">Week ${roundNum}${formatStr}</div>
       <div class="week-meta">${metaParts.join(' &middot; ')}</div>
     `;
     container.appendChild(weekHeader);
@@ -843,12 +850,14 @@ function renderLeaderboard(){
 }
 
 /* ============ LOAD DATA ============ */
+/* ============ LOAD DATA ============ */
 async function loadData(){
   try{
     const res = await fetch('golf-tournament-data.json', {cache:'no-store'});
     if(!res.ok) throw new Error('Failed to fetch golf-tournament-data.json');
     const data = await res.json();
-    state = Object.assign({tournamentName:'',teams:[],matches:[],par:{},weekInfo:{}}, data);
+    // 💡 Added weekFormat:{} here so the frontend reads the match types
+    state = Object.assign({tournamentName:'',teams:[],matches:[],par:{},weekInfo:{},weekFormat:{}}, data);
     const DEFAULT_PAR = {1:4,2:4,3:4,4:4,5:4,6:4,7:4,8:4,9:4,10:4,11:4,12:4,13:4,14:4,15:4,16:4,17:4,18:4};
     state.par = Object.assign({...DEFAULT_PAR}, state.par || {});
     state.weekInfo = state.weekInfo || {};
