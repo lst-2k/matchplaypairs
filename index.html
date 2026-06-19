@@ -500,47 +500,34 @@ function renderFixtures(){
 }
 
 // Calculates layout and positioning for Ryder cup side-dependent pills
-function getFixtureRowPills(m, leftTeamId, rightTeamId) {
+// Returns a small colored pill showing just the result/score (e.g. "3&2", "1 up", "AS thru 12"),
+// colored with the leading/winning team's color.
+function fixtureResultPill(m){
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
   const st = computeMatchState(m);
-  
-  let leftHtml = '';
-  let rightHtml = '';
-  
-  const leftIsTeamA = (m.teamA === leftTeamId);
-  const leftTeam = leftIsTeamA ? teamA : teamB;
-  const rightTeam = leftIsTeamA ? teamB : teamA;
-  
-  if (m.finalized && m.result) {
+
+  let text, bg, textColor;
+  if(m.finalized && m.result){
     const r = m.result;
-    if (r.type === 'halved') {
-      const pill = `<span class="pill" style="background:#9A8C70; color:#fff;">Halved</span>`;
-      leftHtml = pill;
-      rightHtml = pill;
+    if(r.type==='halved'){
+      text = 'Halved'; bg = '#9A8C70'; textColor = '#fff';
     } else {
-      const winnerTeam = r.winner === m.teamA ? teamA : teamB;
-      const pill = `<span class="pill final" style="background:${winnerTeam.color}; color:${contrastTextColor(winnerTeam.color)};">${escapeHTML(r.label)}</span>`;
-      if (r.winner === leftTeamId) leftHtml = pill;
-      else rightHtml = pill;
+      const winnerTeam = r.winner===m.teamA ? teamA : teamB;
+      text = r.label;
+      bg = winnerTeam ? winnerTeam.color : '#9A8C70';
+      textColor = contrastTextColor(bg);
     }
-  } else if (st.contiguousThru === 0) {
-    const pill = `<span class="pill" style="background:#DDD6C5; color:#5C5546;">Not started</span>`;
-    leftHtml = pill;
-    rightHtml = pill;
-  } else if (st.diff === 0) {
-    const pill = `<span class="pill" style="background:#9A8C70; color:#fff;">AS thru ${st.contiguousThru}</span>`;
-    leftHtml = pill;
-    rightHtml = pill;
+  } else if(st.contiguousThru===0){
+    text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
+  } else if(st.diff===0){
+    text = `AS thru ${st.contiguousThru}`; bg = '#9A8C70'; textColor = '#fff';
   } else {
-    const isLeftLeading = (st.diff > 0 && leftIsTeamA) || (st.diff < 0 && !leftIsTeamA);
-    const leadingTeam = isLeftLeading ? leftTeam : rightTeam;
-    const text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
-    const pill = `<span class="pill" style="background:${leadingTeam.color}; color:${contrastTextColor(leadingTeam.color)};">${escapeHTML(text)}</span>`;
-    if (isLeftLeading) leftHtml = pill;
-    else rightHtml = pill;
+    const leadingTeam = st.diff>0 ? teamA : teamB;
+    text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
+    bg = leadingTeam ? leadingTeam.color : '#2E6B3E';
+    textColor = contrastTextColor(bg);
   }
-  
-  return { leftHtml, rightHtml };
+  return `<span class="pill" style="background:${bg}; color:${textColor};">${escapeHTML(text)}</span>`;
 }
 
 /* ============ SCORING ENGINE ============ */
