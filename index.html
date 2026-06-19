@@ -147,13 +147,13 @@
     min-width: 0;
   }
   .fixture-side.left-side {
-    justify-content: flex-start;
-  }
-  .fixture-side.right-side {
     justify-content: flex-end;
   }
+  .fixture-side.right-side {
+    justify-content: flex-start;
+  }
   .pill-slot {
-    width: 90px;
+    width: 85px;
     flex-shrink: 0;
     display: flex;
   }
@@ -169,11 +169,12 @@
     min-width: 0;
     flex: 1;
   }
+  /* Pushes names directly against the central VS */
   .players-slot.left-players {
-    text-align: left;
+    text-align: right;
   }
   .players-slot.right-players {
-    text-align: right;
+    text-align: left;
   }
   .fixture-vs-center {
     font-family: 'Fraunces', serif;
@@ -181,7 +182,7 @@
     color: #C8BFA9;
     font-weight: 600;
     text-align: center;
-    min-width: 50px;
+    min-width: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -207,9 +208,9 @@
   
   .pill {
     font-family:'JetBrains Mono', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    padding: 4px 10px;
+    padding: 4px 9px;
     border-radius: 999px;
     white-space: nowrap;
     text-transform: uppercase;
