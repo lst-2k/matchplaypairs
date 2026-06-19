@@ -628,26 +628,46 @@ function renderScoring(){
   const status = matchStatus(m);
   const endedEarly = m.finalized && m.result && m.result.type==='decided' && m.result.remaining > 0;
 
-  // 💡 Robust format detection
+  // Robust format detection
   const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
   const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
-  
   const isBetterBall = cleanFormat.includes('4ball') || 
                        cleanFormat.includes('betterball') || 
                        cleanFormat.includes('bestball') || 
                        cleanFormat.includes('fourball');
-                       
-  // 💡 Detect if it is a Singles match
   const isSingles = cleanFormat.includes('single');
+
+  // 🎨 Calculate dynamic team colors for the scorecard header status pill
+  const st = computeMatchState(m);
+  let pillBg = '#9A8C70'; // Default gray for All Square / Halved
+  let pillColor = '#fff';
+
+  if(m.finalized && m.result){
+    if(m.result.type !== 'halved'){
+      const winnerTeam = m.result.winner === m.teamA ? ta : tb;
+      if(winnerTeam) {
+        pillBg = winnerTeam.color;
+        pillColor = contrastTextColor(pillBg);
+      }
+    }
+  } else if(st.contiguousThru === 0){
+    pillBg = '#DDD6C5'; // Not started
+    pillColor = '#5C5546';
+  } else if(st.diff !== 0){
+    const leadingTeam = st.diff > 0 ? ta : tb;
+    if(leadingTeam) {
+      pillBg = leadingTeam.color;
+      pillColor = contrastTextColor(pillBg);
+    }
+  }
 
   card.innerHTML = `
     <div class="match-header">
       <h3><span class="swatch" style="background:${ta.color}"></span>${escapeHTML(ta.name)} <span style="color:#C8BFA9;">vs</span> <span class="swatch" style="background:${tb.color}"></span>${escapeHTML(tb.name)}</h3>
-      <span class="pill ${status.cls}">${status.label}</span>
+      <span class="pill ${status.cls}" style="background:${pillBg}; color:${pillColor};">${status.label}</span>
     </div>
     <div class="scorecard-wrap"></div>
     
-    ${/* 💡 Hide the legend if it is EITHER a Best Ball or a Singles match */ ''}
     ${(isBetterBall || isSingles) ? '' : `
     <div class="scorecard-legend">
       <span class="key"><span class="swatch-box counts"></span> Counts toward match result</span>
