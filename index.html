@@ -353,6 +353,7 @@ let state = {
 };
 
 /* ============ TABS ============ */
+
 document.querySelectorAll('.tab').forEach(tab=>{
   tab.addEventListener('click', ()=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -366,6 +367,7 @@ document.querySelectorAll('.tab').forEach(tab=>{
 });
 
 /* ============ HELPERS ============ */
+
 function escapeHTML(str){
   const div = document.createElement('div');
   div.textContent = str==null ? '' : String(str);
@@ -379,7 +381,7 @@ function playerById(teamId, playerId){
 }
 
 /* ============ FIXTURES ============ */
-/* ============ FIXTURES ============ */
+
 function renderFixtures(){
   const container = document.getElementById('fixturesContainer');
   const empty = document.getElementById('fixturesEmpty');
@@ -404,7 +406,7 @@ function renderFixtures(){
       metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
     }
     
-    // Restored the format style next to the week number (e.g., Week 1 — Alternative)
+    // Restores match format display next to the week title
     const formatStr = wInfo.format ? ` &mdash; ${escapeHTML(wInfo.format)}` : '';
     
     weekHeader.innerHTML = `
@@ -431,48 +433,54 @@ function renderFixtures(){
       card.className='fixture-card';
 
       const matchRows = group.matches.map((m, i)=>{
-        const leftIsTeamA = (m.teamA===group.left);
-        const leftSide = leftIsTeamA ? 'A' : 'B';
+        const pill = fixtureResultPill(m);
+        const leftSide = (m.teamA===group.left) ? 'A' : 'B';
         const rightSide = leftSide==='A' ? 'B' : 'A';
         
-        const leftPair = leftSide==='A' ? m.pairA : m.pairB;
         const leftTeamId = leftSide==='A' ? m.teamA : m.teamB;
-        const leftTeam = teamById(leftTeamId);
-        const leftPlayer1 = playerById(leftTeamId, leftPair[0]);
-        const leftPlayer2 = playerById(leftTeamId, leftPair[1]);
-        
-        const rightPair = rightSide==='A' ? m.pairA : m.pairB;
         const rightTeamId = rightSide==='A' ? m.teamA : m.teamB;
+        const leftTeam = teamById(leftTeamId);
         const rightTeam = teamById(rightTeamId);
-        const rightPlayer1 = playerById(rightTeamId, rightPair[0]);
-        const rightPlayer2 = playerById(rightTeamId, rightPair[1]);
         
-        const pills = getFixtureRowPills(m, leftTeamId, rightTeamId);
+        const leftPair = leftSide==='A' ? m.pairA : m.pairB;
+        const rightPair = rightSide==='A' ? m.pairA : m.pairB;
         
-        // Dynamic team colors for text strings
         const leftColor = leftTeam ? leftTeam.color : 'var(--ink)';
         const rightColor = rightTeam ? rightTeam.color : 'var(--ink)';
-        
+
+        // Build HTML for left side players
+        let leftPlayersHtml = '';
+        if(leftPair && leftPair.length > 0){
+          const p1 = playerById(leftTeamId, leftPair[0]);
+          leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; font-weight:600;">${escapeHTML(p1 ? p1.name : '?')}</div>`;
+          if(leftPair[1]){
+            const p2 = playerById(leftTeamId, leftPair[1]);
+            leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${escapeHTML(p2 ? p2.name : '?')}</div>`;
+          }
+        }
+
+        // Build HTML for right side players
+        let rightPlayersHtml = '';
+        if(rightPair && rightPair.length > 0){
+          const p1 = playerById(rightTeamId, rightPair[0]);
+          rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; font-weight:600;">${escapeHTML(p1 ? p1.name : '?')}</div>`;
+          if(rightPair[1]){
+            const p2 = playerById(rightTeamId, rightPair[1]);
+            rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${escapeHTML(p2 ? p2.name : '?')}</div>`;
+          }
+        }
+
         return `
           <div class="fixture-match-row">
-            <div class="fixture-pill-container left">
-              ${pills.leftHtml}
-            </div>
-            
             <div class="fixture-players left-align">
-              <div class="player-name" style="color: ${leftColor};">${escapeHTML(leftPlayer1 ? leftPlayer1.name : '?')}</div>
-              ${leftPlayer2 ? `<div class="player-name" style="color: ${leftColor}; opacity: 0.75; font-weight:400; margin-top:1px;">${escapeHTML(leftPlayer2.name)}</div>` : ''}
+              ${leftPlayersHtml}
             </div>
-            
             <div class="fixture-vs">v</div>
-            
             <div class="fixture-players right-align">
-              <div class="player-name" style="color: ${rightColor};">${escapeHTML(rightPlayer1 ? rightPlayer1.name : '?')}</div>
-              ${rightPlayer2 ? `<div class="player-name" style="color: ${rightColor}; opacity: 0.75; font-weight:400; margin-top:1px;">${escapeHTML(rightPlayer2.name)}</div>` : ''}
+              ${rightPlayersHtml}
             </div>
-            
-            <div class="fixture-pill-container right">
-              ${pills.rightHtml}
+            <div class="fixture-status-container">
+              ${pill}
             </div>
           </div>
         `;
@@ -481,7 +489,7 @@ function renderFixtures(){
       card.innerHTML = `
         <div class="fixture-teams">
           <span class="swatch" style="background:${tLeft.color}"></span>${escapeHTML(tLeft.name)}
-          <span style="color:#C8BFA9;">vs</span>
+          <span style="color:#C8BFA9; font-size: 15px; font-family: 'Inter', sans-serif; font-weight:400;">vs</span>
           <span class="swatch" style="background:${tRight.color}"></span>${escapeHTML(tRight.name)}
         </div>
         <div class="fixture-pair-rows">${matchRows}</div>
