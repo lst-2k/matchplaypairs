@@ -104,88 +104,91 @@
     border:1px solid rgba(0,0,0,0.1);
   }
 
-/* Fixtures */
-  .fixture-card{
-    border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:16px;
-    display:flex; flex-direction:column; gap:12px;
+/* Fixtures modern split-row layout */
+  .fixture-card {
     background: var(--card);
-  }
-  .fixture-teams{
-    font-family:'Fraunces',serif; font-size:18px; font-weight:700;
-    border-bottom: 1px solid var(--line); padding-bottom: 8px;
-  }
-  .fixture-pair-rows{
-    display:flex; flex-direction:column;
     border: 1px solid var(--line);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .fixture-match-row{
-    display: flex;
-    align-items: center;
-    padding: 14px 14px 12px;
-    gap: 12px;
-    position: relative;
-    background: #fff;
-  }
-  .fixture-match-row:not(:last-child){
-    border-bottom: 1px solid #ECE7DA; /* Feint divider between matches */
-  }
-  .fixture-pill-container{
-    width: 130px;
-    min-width: 130px;
-    display: flex;
-    align-items: center;
-  }
-  .fixture-pill-container.left{ justify-content: flex-start; }
-  .fixture-pill-container.right{ justify-content: flex-end; }
-  
-  .fixture-players{
-    flex: 1;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 16px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 14px;
   }
-  .fixture-players.left-align{ text-align: right; }
-  .fixture-players.right-align{ text-align: left; }
-  
-  .fixture-vs{
+  .fixture-teams {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fixture-pair-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .fixture-match-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 16px;
+    gap: 16px;
+  }
+  .fixture-team-side {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  .fixture-team-side.left {
+    justify-content: flex-end;
+  }
+  .fixture-team-side.right {
+    justify-content: flex-start;
+  }
+  .fixture-players {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .fixture-players.left-align {
+    text-align: right;
+  }
+  .fixture-players.right-align {
+    text-align: left;
+  }
+  .fixture-vs {
     font-family: 'Fraunces', serif;
     font-size: 14px;
     color: #C8BFA9;
     font-weight: 600;
-    min-width: 20px;
     text-align: center;
+    white-space: nowrap;
   }
-  .player-name{
+  .player-name {
     font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .fixture-pair-num{
-    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
-    color:var(--gold); background:rgba(201,162,39,0.1);
-    border-radius:4px; padding:1px 4px;
-    position: absolute; left: 8px; top: 4px;
+  .side-pill-container {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
-  .pill{
-    font-family:'JetBrains Mono',monospace;
-    font-size:13px; font-weight:700;
-    padding:5px 12px; border-radius:999px;
-    color:#fff; background:var(--halved);
-    white-space:nowrap;
-  }
-  .pill.final{box-shadow:0 0 0 2px var(--gold) inset;}
-
-  .round-label{
+  .round-label {
     font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold);
     font-weight:700; margin:18px 0 4px;
   }
   .round-label:first-child{margin-top:0;}
-  .week-header{
+  .week-header {
     display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px 16px;
     margin:18px 0 4px;
   }
@@ -193,21 +196,34 @@
   .week-header .round-label{margin:0;}
   .week-meta{font-size:13px; color:#7A7363;}
   
-  @media (max-width: 640px){
-    .fixture-pill-container{
-      width: 95px;
-      min-width: 95px;
+  .pill {
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px; font-weight:700;
+    padding: 5px 12px; border-radius:999px;
+    white-space:nowrap;
+  }
+  .pill.neutral {
+    background: #9A8C70;
+    color: #fff;
+  }
+  
+  @media (max-width: 640px) {
+    .fixture-match-row {
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+      padding: 12px;
     }
-    .fixture-match-row{
-      padding: 16px 6px 10px;
+    .fixture-team-side.left,
+    .fixture-team-side.right {
+      justify-content: center;
+      flex-direction: column;
       gap: 6px;
+      width: 100%;
     }
-    .player-name{
-      font-size: 13px;
-    }
-    .pill {
-      font-size: 11px;
-      padding: 4px 8px;
+    .fixture-players.left-align,
+    .fixture-players.right-align {
+      text-align: center;
     }
   }
 
@@ -406,8 +422,21 @@ function renderFixtures(){
       metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
     }
     
-    // Restores match format display next to the week title
-    const formatStr = wInfo.format ? ` &mdash; ${escapeHTML(wInfo.format)}` : '';
+    // Defensive format finder to handle 0-indexed arrays or distinct state models
+    let formatText = '';
+    if (wInfo.format) {
+      formatText = wInfo.format;
+    } else if (state.weekInfo && state.weekInfo[roundNum - 1] && state.weekInfo[roundNum - 1].format) {
+      formatText = state.weekInfo[roundNum - 1].format;
+    } else if (state.weeks && state.weeks[roundNum] && state.weeks[roundNum].format) {
+      formatText = state.weeks[roundNum].format;
+    } else if (state.weeks && state.weeks[roundNum - 1] && state.weeks[roundNum - 1].format) {
+      formatText = state.weeks[roundNum - 1].format;
+    } else if (rounds[roundNum] && rounds[roundNum][0]) {
+      formatText = rounds[roundNum][0].format || rounds[roundNum][0].matchFormat || '';
+    }
+    
+    const formatStr = formatText ? ` &mdash; ${escapeHTML(formatText)}` : '';
     
     weekHeader.innerHTML = `
       <div class="round-label">Week ${roundNum}${formatStr}</div>
@@ -433,7 +462,6 @@ function renderFixtures(){
       card.className='fixture-card';
 
       const matchRows = group.matches.map((m, i)=>{
-        const pill = fixtureResultPill(m);
         const leftSide = (m.teamA===group.left) ? 'A' : 'B';
         const rightSide = leftSide==='A' ? 'B' : 'A';
         
@@ -448,7 +476,7 @@ function renderFixtures(){
         const leftColor = leftTeam ? leftTeam.color : 'var(--ink)';
         const rightColor = rightTeam ? rightTeam.color : 'var(--ink)';
 
-        // Build HTML for left side players
+        // Left side players
         let leftPlayersHtml = '';
         if(leftPair && leftPair.length > 0){
           const p1 = playerById(leftTeamId, leftPair[0]);
@@ -459,7 +487,7 @@ function renderFixtures(){
           }
         }
 
-        // Build HTML for right side players
+        // Right side players
         let rightPlayersHtml = '';
         if(rightPair && rightPair.length > 0){
           const p1 = playerById(rightTeamId, rightPair[0]);
@@ -470,17 +498,49 @@ function renderFixtures(){
           }
         }
 
+        // Context-aware scoring side assignment
+        const st = computeMatchState(m);
+        let leftPillHtml = '';
+        let rightPillHtml = '';
+        let centerHtml = 'v';
+
+        if(m.finalized && m.result){
+          if(m.result.type==='halved'){
+            centerHtml = `<span class="pill neutral">Halved</span>`;
+          } else {
+            const isLeftWinner = (m.result.winner === leftTeamId);
+            const pillHtml = `<span class="pill" style="background:${isLeftWinner ? leftColor : rightColor}; color:${contrastTextColor(isLeftWinner ? leftColor : rightColor)};">${escapeHTML(m.result.label)}</span>`;
+            if(isLeftWinner) leftPillHtml = pillHtml;
+            else rightPillHtml = pillHtml;
+          }
+        } else if(st.contiguousThru===0){
+          centerHtml = 'v';
+        } else if(st.diff===0){
+          centerHtml = `<span class="pill neutral">AS thru ${st.contiguousThru}</span>`;
+        } else {
+          const isLeftLeading = (st.diff > 0 && m.teamA === leftTeamId) || (st.diff < 0 && m.teamB === leftTeamId);
+          const leadingColor = isLeftLeading ? leftColor : rightColor;
+          const pillHtml = `<span class="pill" style="background:${leadingColor}; color:${contrastTextColor(leadingColor)};">${Math.abs(st.diff)} UP thru ${st.contiguousThru}</span>`;
+          if(isLeftLeading) leftPillHtml = pillHtml;
+          else rightPillHtml = pillHtml;
+        }
+
         return `
           <div class="fixture-match-row">
-            <div class="fixture-players left-align">
-              ${leftPlayersHtml}
+            <div class="fixture-team-side left">
+              <div class="fixture-players left-align">
+                ${leftPlayersHtml}
+              </div>
+              ${leftPillHtml ? `<div class="side-pill-container">${leftPillHtml}</div>` : ''}
             </div>
-            <div class="fixture-vs">v</div>
-            <div class="fixture-players right-align">
-              ${rightPlayersHtml}
-            </div>
-            <div class="fixture-status-container">
-              ${pill}
+            
+            <div class="fixture-vs">${centerHtml}</div>
+            
+            <div class="fixture-team-side right">
+              ${rightPillHtml ? `<div class="side-pill-container">${rightPillHtml}</div>` : ''}
+              <div class="fixture-players right-align">
+                ${rightPlayersHtml}
+              </div>
             </div>
           </div>
         `;
