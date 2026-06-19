@@ -104,26 +104,73 @@
     border:1px solid rgba(0,0,0,0.1);
   }
 
-  /* Fixtures */
+/* Fixtures */
   .fixture-card{
-    border:1px solid var(--line); border-radius:10px; padding:14px; margin-top:12px;
-    display:flex; flex-direction:column; gap:10px;
+    border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:16px;
+    display:flex; flex-direction:column; gap:12px;
+    background: var(--card);
   }
-  .fixture-teams{font-family:'Fraunces',serif; font-size:17px; font-weight:600;}
-  .fixture-pair-rows{display:flex; flex-direction:column; gap:8px;}
-  .fixture-pair-row{
-    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
-    background:var(--cream); border-radius:8px; padding:8px 12px;
+  .fixture-teams{
+    font-family:'Fraunces',serif; font-size:18px; font-weight:700;
+    border-bottom: 1px solid var(--line); padding-bottom: 8px;
   }
-  .fixture-pair{
-    margin-top:0; font-size:14px; color:var(--ink); display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  .fixture-pair-rows{
+    display:flex; flex-direction:column;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .fixture-match-row{
+    display: flex;
+    align-items: center;
+    padding: 14px 14px 12px;
+    gap: 12px;
+    position: relative;
+    background: #fff;
+  }
+  .fixture-match-row:not(:last-child){
+    border-bottom: 1px solid #ECE7DA; /* Feint divider between matches */
+  }
+  .fixture-pill-container{
+    width: 130px;
+    min-width: 130px;
+    display: flex;
+    align-items: center;
+  }
+  .fixture-pill-container.left{ justify-content: flex-start; }
+  .fixture-pill-container.right{ justify-content: flex-end; }
+  
+  .fixture-players{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .fixture-players.left-align{ text-align: right; }
+  .fixture-players.right-align{ text-align: left; }
+  
+  .fixture-vs{
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    color: #C8BFA9;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+  }
+  .player-name{
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .fixture-pair-num{
-    font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
-    color:var(--gold); background:rgba(201,162,39,0.15);
-    border-radius:6px; padding:2px 6px;
+    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+    color:var(--gold); background:rgba(201,162,39,0.1);
+    border-radius:4px; padding:1px 4px;
+    position: absolute; left: 8px; top: 4px;
   }
-  .pair-names{font-weight:600;}
   .pill{
     font-family:'JetBrains Mono',monospace;
     font-size:13px; font-weight:700;
@@ -131,9 +178,8 @@
     color:#fff; background:var(--halved);
     white-space:nowrap;
   }
-  .pill.up{background:var(--up);}
-  .pill.down{background:var(--down);}
   .pill.final{box-shadow:0 0 0 2px var(--gold) inset;}
+
   .round-label{
     font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold);
     font-weight:700; margin:18px 0 4px;
@@ -146,6 +192,24 @@
   .week-header:first-child{margin-top:0;}
   .week-header .round-label{margin:0;}
   .week-meta{font-size:13px; color:#7A7363;}
+  
+  @media (max-width: 640px){
+    .fixture-pill-container{
+      width: 95px;
+      min-width: 95px;
+    }
+    .fixture-match-row{
+      padding: 16px 6px 10px;
+      gap: 6px;
+    }
+    .player-name{
+      font-size: 13px;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 4px 8px;
+    }
+  }
 
   /* Scorecard */
   .scorecard-wrap{overflow-x:auto;}
@@ -315,6 +379,7 @@ function playerById(teamId, playerId){
 }
 
 /* ============ FIXTURES ============ */
+/* ============ FIXTURES ============ */
 function renderFixtures(){
   const container = document.getElementById('fixturesContainer');
   const empty = document.getElementById('fixturesEmpty');
@@ -330,9 +395,6 @@ function renderFixtures(){
 
   Object.keys(rounds).sort((a,b)=>a-b).forEach(roundNum=>{
     const wInfo = (state.weekInfo && state.weekInfo[roundNum]) || {};
-    // 💡 Fetch the match play format chosen for this round
-    const formatName = (state.weekFormat && state.weekFormat[roundNum]) || ''; 
-    
     const weekHeader = document.createElement('div');
     weekHeader.className = 'week-header';
     const metaParts = [];
@@ -341,12 +403,8 @@ function renderFixtures(){
       const d = new Date(wInfo.date);
       metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
     }
-
-    // 💡 Format the text string if a layout format exists
-    const formatStr = formatName ? `, ${escapeHTML(formatName)}` : '';
-
     weekHeader.innerHTML = `
-      <div class="round-label">Week ${roundNum}${formatStr}</div>
+      <div class="round-label">Week ${roundNum}</div>
       <div class="week-meta">${metaParts.join(' &middot; ')}</div>
     `;
     container.appendChild(weekHeader);
@@ -369,15 +427,44 @@ function renderFixtures(){
       card.className='fixture-card';
 
       const matchRows = group.matches.map((m, i)=>{
-        const pill = fixtureResultPill(m);
-        const leftSide = (m.teamA===group.left) ? 'A' : 'B';
+        const leftIsTeamA = (m.teamA===group.left);
+        const leftSide = leftIsTeamA ? 'A' : 'B';
         const rightSide = leftSide==='A' ? 'B' : 'A';
+        
+        const leftPair = leftSide==='A' ? m.pairA : m.pairB;
+        const leftTeamId = leftSide==='A' ? m.teamA : m.teamB;
+        const leftPlayer1 = playerById(leftTeamId, leftPair[0]);
+        const leftPlayer2 = playerById(leftTeamId, leftPair[1]);
+        
+        const rightPair = rightSide==='A' ? m.pairA : m.pairB;
+        const rightTeamId = rightSide==='A' ? m.teamA : m.teamB;
+        const rightPlayer1 = playerById(rightTeamId, rightPair[0]);
+        const rightPlayer2 = playerById(rightTeamId, rightPair[1]);
+        
+        const pills = getFixtureRowPills(m, leftTeamId, rightTeamId);
+        
         return `
-          <div class="fixture-pair-row">
-            <div class="fixture-pair">
-              <span class="fixture-pair-num">M${i+1}</span>
-              ${pairLabel(m, leftSide)} <span style="color:#C8BFA9;">v</span> ${pairLabel(m, rightSide)}
-              ${pill}
+          <div class="fixture-match-row">
+            <span class="fixture-pair-num">M${i+1}</span>
+            
+            <div class="fixture-pill-container left">
+              ${pills.leftHtml}
+            </div>
+            
+            <div class="fixture-players left-align">
+              <div class="player-name">${escapeHTML(leftPlayer1 ? leftPlayer1.name : '?')}</div>
+              ${leftPlayer2 ? `<div class="player-name" style="color:#7A7363; font-weight:400; margin-top:1px;">${escapeHTML(leftPlayer2.name)}</div>` : ''}
+            </div>
+            
+            <div class="fixture-vs">v</div>
+            
+            <div class="fixture-players right-align">
+              <div class="player-name">${escapeHTML(rightPlayer1 ? rightPlayer1.name : '?')}</div>
+              ${rightPlayer2 ? `<div class="player-name" style="color:#7A7363; font-weight:400; margin-top:1px;">${escapeHTML(rightPlayer2.name)}</div>` : ''}
+            </div>
+            
+            <div class="fixture-pill-container right">
+              ${pills.rightHtml}
             </div>
           </div>
         `;
@@ -396,45 +483,48 @@ function renderFixtures(){
   });
 }
 
-function fixtureResultPill(m){
+// Calculates layout and positioning for Ryder cup side-dependent pills
+function getFixtureRowPills(m, leftTeamId, rightTeamId) {
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
   const st = computeMatchState(m);
-
-  let text, bg, textColor;
-  if(m.finalized && m.result){
+  
+  let leftHtml = '';
+  let rightHtml = '';
+  
+  const leftIsTeamA = (m.teamA === leftTeamId);
+  const leftTeam = leftIsTeamA ? teamA : teamB;
+  const rightTeam = leftIsTeamA ? teamB : teamA;
+  
+  if (m.finalized && m.result) {
     const r = m.result;
-    if(r.type==='halved'){
-      text = 'Halved'; bg = '#9A8C70'; textColor = '#fff';
+    if (r.type === 'halved') {
+      const pill = `<span class="pill" style="background:#9A8C70; color:#fff;">Halved</span>`;
+      leftHtml = pill;
+      rightHtml = pill;
     } else {
-      const winnerTeam = r.winner===m.teamA ? teamA : teamB;
-      text = r.label;
-      bg = winnerTeam ? winnerTeam.color : '#9A8C70';
-      textColor = contrastTextColor(bg);
+      const winnerTeam = r.winner === m.teamA ? teamA : teamB;
+      const pill = `<span class="pill final" style="background:${winnerTeam.color}; color:${contrastTextColor(winnerTeam.color)};">${escapeHTML(r.label)}</span>`;
+      if (r.winner === leftTeamId) leftHtml = pill;
+      else rightHtml = pill;
     }
-  } else if(st.contiguousThru===0){
-    text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
-  } else if(st.diff===0){
-    text = `AS thru ${st.contiguousThru}`; bg = '#9A8C70'; textColor = '#fff';
+  } else if (st.contiguousThru === 0) {
+    const pill = `<span class="pill" style="background:#DDD6C5; color:#5C5546;">Not started</span>`;
+    leftHtml = pill;
+    rightHtml = pill;
+  } else if (st.diff === 0) {
+    const pill = `<span class="pill" style="background:#9A8C70; color:#fff;">AS thru ${st.contiguousThru}</span>`;
+    leftHtml = pill;
+    rightHtml = pill;
   } else {
-    const leadingTeam = st.diff>0 ? teamA : teamB;
-    text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
-    bg = leadingTeam ? leadingTeam.color : '#2E6B3E';
-    textColor = contrastTextColor(bg);
+    const isLeftLeading = (st.diff > 0 && leftIsTeamA) || (st.diff < 0 && !leftIsTeamA);
+    const leadingTeam = isLeftLeading ? leftTeam : rightTeam;
+    const text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
+    const pill = `<span class="pill" style="background:${leadingTeam.color}; color:${contrastTextColor(leadingTeam.color)};">${escapeHTML(text)}</span>`;
+    if (isLeftLeading) leftHtml = pill;
+    else rightHtml = pill;
   }
-  return `<span class="pill" style="background:${bg}; color:${textColor};">${escapeHTML(text)}</span>`;
-}
-
-function pairLabel(m, side){
-  const teamId = side==='A' ? m.teamA : m.teamB;
-  const pair = side==='A' ? m.pairA : m.pairB;
-  const team = teamById(teamId);
-  if(!team) return '';
-  const names = (pair || [])
-    .map(pid => playerById(teamId, pid))
-    .filter(p => p != null)
-    .map(p => p.name);
-  if(names.length === 0) return '<span class="pair-names">?</span>';
-  return `<span class="pair-names">${escapeHTML(names.join(' & '))}</span>`;
+  
+  return { leftHtml, rightHtml };
 }
 
 /* ============ SCORING ENGINE ============ */
