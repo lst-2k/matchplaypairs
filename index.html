@@ -441,44 +441,55 @@ function pairLabel(m, side){
 /* ============ SCORING ENGINE (read-only) ============ */
 // Returns array of 18 hole results: 'A' win, 'B' win, 'halve', or null (not played)
 /* ============ SCORING ENGINE (read-only) ============ */
+/* ============ SCORING ENGINE (read-only) ============ */
 function computeHoleResults(m){
   const results = [];
   
-  // 💡 Ultra-robust format detection checking both match object and weekly schedule
+  // 💡 Ultra-robust format detection
   const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
   const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
   const isBetterBall = cleanFormat.includes('4ball') || 
                        cleanFormat.includes('betterball') || 
                        cleanFormat.includes('bestball') || 
                        cleanFormat.includes('fourball');
+  const isSingles = cleanFormat.includes('single');
 
   for(let h=1; h<=18; h++){
     const rec = m.scores[h];
     if(!rec) { results.push(null); continue; }
 
     if (isBetterBall) {
-      // 🏌️‍♂️ Gather all non-empty scores for Team A
+      // 🏌️‍♂️ Better Ball / Four-Ball format
       const validA = [];
       if (rec['A0'] != null && rec['A0'] !== '') validA.push(Number(rec['A0']));
       if (rec['A1'] != null && rec['A1'] !== '') validA.push(Number(rec['A1']));
 
-      // 🏌️‍♂️ Gather all non-empty scores for Team B
       const validB = [];
       if (rec['B0'] != null && rec['B0'] !== '') validB.push(Number(rec['B0']));
       if (rec['B1'] != null && rec['B1'] !== '') validB.push(Number(rec['B1']));
 
-      // If either team has zero scores entered for this hole, it's not fully played yet
       if (validA.length === 0 || validB.length === 0) {
         results.push(null);
         continue;
       }
 
-      // 🎯 Find the best (lowest) score for each team
       const bestA = Math.min(...validA);
       const bestB = Math.min(...validB);
 
       if(bestA < bestB) results.push('A');
       else if(bestB < bestA) results.push('B');
+      else results.push('halve');
+
+    } else if (isSingles) {
+      // 👤 Singles format: Always compare Player 0 (A0 vs B0) for every single hole
+      const scoreA = rec['A0'];
+      const scoreB = rec['B0'];
+      if(scoreA == null || scoreB == null || scoreA==='' || scoreB===''){
+        results.push(null); continue;
+      }
+      const sa = Number(scoreA), sb = Number(scoreB);
+      if(sa < sb) results.push('A');
+      else if(sb < sa) results.push('B');
       else results.push('halve');
 
     } else {
@@ -615,36 +626,35 @@ function renderScoring(){
   card.className='card';
 
   const status = matchStatus(m);
-  const st = computeMatchState(m);
   const endedEarly = m.finalized && m.result && m.result.type==='decided' && m.result.remaining > 0;
 
-  // 🎨 Dynamically determine the pill background color based on match state
-  let pillBg = '#9A8C70'; // Default neutral halved/all-square color
-  if (m.finalized && m.result) {
-    if (m.result.type !== 'halved') {
-      const winnerTeam = teamById(m.result.winner);
-      if (winnerTeam) pillBg = winnerTeam.color;
-    }
-  } else if (st.contiguousThru === 0) {
-    pillBg = '#DDD6C5'; // Not started color
-  } else if (st.diff !== 0) {
-    const leadingTeam = st.diff > 0 ? ta : tb;
-    if (leadingTeam) pillBg = leadingTeam.color;
-  }
+  // 💡 Robust format detection
+  const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
+  const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
   
-  // Calculate matching text color (white or dark text) for contrast readability
-  const pillTextColor = contrastTextColor(pillBg);
+  const isBetterBall = cleanFormat.includes('4ball') || 
+                       cleanFormat.includes('betterball') || 
+                       cleanFormat.includes('bestball') || 
+                       cleanFormat.includes('fourball');
+                       
+  // 💡 Detect if it is a Singles match
+  const isSingles = cleanFormat.includes('single');
 
   card.innerHTML = `
     <div class="match-header">
       <h3><span class="swatch" style="background:${ta.color}"></span>${escapeHTML(ta.name)} <span style="color:#C8BFA9;">vs</span> <span class="swatch" style="background:${tb.color}"></span>${escapeHTML(tb.name)}</h3>
-      <span class="pill" style="background:${pillBg}; color:${pillTextColor}; border:none;">${status.label}</span>
+      <span class="pill ${status.cls}">${status.label}</span>
     </div>
     <div class="scorecard-wrap"></div>
+    
+    ${/* 💡 Hide the legend if it is EITHER a Best Ball or a Singles match */ ''}
+    ${(isBetterBall || isSingles) ? '' : `
     <div class="scorecard-legend">
       <span class="key"><span class="swatch-box counts"></span> Counts toward match result</span>
       <span class="key"><span class="swatch-box nocounts"></span> Recorded for the round, doesn't affect the match</span>
     </div>
+    `}
+    
     ${endedEarly ? `<div class="status-line">Match ended ${m.result.label} — remaining holes aren't shown since they didn't affect the result.</div>` : ''}
     <div class="status-line" id="statusLine"></div>
   `;
@@ -727,27 +737,46 @@ function buildParRow(lastRelevantHole){
 }
 
 function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole){
-  // 💡 Ultra-robust format detection checking both match object and weekly schedule
+  // 💡 Ultra-robust format detection
   const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
   const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
   const isBetterBall = cleanFormat.includes('4ball') || 
                        cleanFormat.includes('betterball') || 
                        cleanFormat.includes('bestball') || 
                        cleanFormat.includes('fourball');
-
-  // 💡 Adjust the subtext hint next to the player's name
-  const labelHint = isBetterBall 
-    ? '(Best ball counts)' 
-    : (oddEven === 'all' ? '(counts: all holes)' : `(counts: ${oddEven==='odd'?'1,3,5...17':'2,4,6...18'})`);
+  const isSingles = cleanFormat.includes('single');
 
   const tr = document.createElement('tr');
+
+  // 👤 Clean UI: If it's a Singles match, hide the ghost second rows completely
+  if (isSingles && !player) {
+    tr.style.display = 'none';
+    return tr;
+  }
+
+  // 💡 Adjust subtext hint next to player names
+  let labelHint = '';
+  if (isBetterBall) {
+    labelHint = '(Best ball counts)';
+  } else if (isSingles) {
+    labelHint = '(All holes count)';
+  } else {
+    labelHint = (oddEven === 'all' ? '(counts: all holes)' : `(counts: ${oddEven==='odd'?'1,3,5...17':'2,4,6...18'})`);
+  }
+
   let html = `<td class="label">${escapeHTML(player ? player.name : '?')} <span style="color:#B7AE99; font-size:11px;">${labelHint}</span></td>`;
   let outSum=0, inSum=0, total=0;
 
   for(let h=1; h<=9; h++){
     const hidden = h > lastRelevantHole;
     const v = hidden ? null : getScore(m,h,team,idx);
-    const isCounting = isBetterBall || oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+    
+    // Determine cell highlighting
+    let isCounting = false;
+    if (isBetterBall) isCounting = true;
+    else if (isSingles) isCounting = (idx === 0);
+    else isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+
     html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${v!=null?v:''}</td>`;
     if(v!=null){ outSum+=v; total+=v; }
   }
@@ -755,7 +784,13 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole){
   for(let h=10; h<=18; h++){
     const hidden = h > lastRelevantHole;
     const v = hidden ? null : getScore(m,h,team,idx);
-    const isCounting = isBetterBall || oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+    
+    // Determine cell highlighting
+    let isCounting = false;
+    if (isBetterBall) isCounting = true;
+    else if (isSingles) isCounting = (idx === 0);
+    else isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+
     html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${v!=null?v:''}</td>`;
     if(v!=null){ inSum+=v; total+=v; }
   }
