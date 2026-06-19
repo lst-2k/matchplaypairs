@@ -569,12 +569,30 @@ function renderScoring(){
   card.className='card';
 
   const status = matchStatus(m);
+  const st = computeMatchState(m);
   const endedEarly = m.finalized && m.result && m.result.type==='decided' && m.result.remaining > 0;
+
+  // 🎨 Dynamically determine the pill background color based on match state
+  let pillBg = '#9A8C70'; // Default neutral halved/all-square color
+  if (m.finalized && m.result) {
+    if (m.result.type !== 'halved') {
+      const winnerTeam = teamById(m.result.winner);
+      if (winnerTeam) pillBg = winnerTeam.color;
+    }
+  } else if (st.contiguousThru === 0) {
+    pillBg = '#DDD6C5'; // Not started color
+  } else if (st.diff !== 0) {
+    const leadingTeam = st.diff > 0 ? ta : tb;
+    if (leadingTeam) pillBg = leadingTeam.color;
+  }
+  
+  // Calculate matching text color (white or dark text) for contrast readability
+  const pillTextColor = contrastTextColor(pillBg);
 
   card.innerHTML = `
     <div class="match-header">
       <h3><span class="swatch" style="background:${ta.color}"></span>${escapeHTML(ta.name)} <span style="color:#C8BFA9;">vs</span> <span class="swatch" style="background:${tb.color}"></span>${escapeHTML(tb.name)}</h3>
-      <span class="pill ${status.cls}">${status.label}</span>
+      <span class="pill" style="background:${pillBg}; color:${pillTextColor}; border:none;">${status.label}</span>
     </div>
     <div class="scorecard-wrap"></div>
     <div class="scorecard-legend">
