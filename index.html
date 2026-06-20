@@ -221,71 +221,70 @@
   }
   
   @media (max-width: 640px) {
+    /* Keep the horizontal 3-column layout exactly like landscape */
     .fixture-match-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 14px;
+      display: grid !important;
+      grid-template-columns: 1fr auto 1fr !important;
+      flex-direction: row !important;
+      padding: 10px 8px;
+      gap: 6px;
     }
     
-    /* Turn each team into a full-width horizontal row */
+    /* Maintain side structures */
     .fixture-side {
       display: flex !important;
       flex-direction: row !important;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      gap: 12px;
+      align-items: center !important;
+      width: auto !important;
+      gap: 8px;
     }
-    
-    /* Arrange layout order for mobile */
     .fixture-side.left-side {
-      order: 1;
+      justify-content: flex-end !important;
+      order: unset !important;
     }
-    /* Flips Left side so players are on left, pill is on right */
-    .fixture-side.left-side .players-slot {
-      order: 1;
-    }
-    .fixture-side.left-side .pill-slot {
-      order: 2;
-    }
-    
     .fixture-side.right-side {
-      order: 3;
+      justify-content: flex-start !important;
+      order: unset !important;
+    }
+
+    /* Reset internal element ordering */
+    .fixture-side.left-side .players-slot { order: unset !important; }
+    .fixture-side.left-side .pill-slot { order: unset !important; }
+
+    /* Keep player text aligned toward the central VS slot */
+    .players-slot.left-players {
+      text-align: right !important;
+    }
+    .players-slot.right-players {
+      text-align: left !important;
+    }
+
+    /* Keep the pill slots fixed-width but slightly slimmer for narrow mobile screens */
+    .pill-slot {
+      width: 68px !important;
+    }
+    .pill-slot.left-pill { justify-content: flex-start !important; }
+    .pill-slot.right-pill { justify-content: flex-end !important; }
+
+    /* Scale fonts down slightly for perfect mobile fit */
+    .player-name {
+      font-size: 13px;
+    }
+    .pill {
+      font-size: 10px;
+      padding: 3px 7px;
     }
     
-    /* Transform the center VS into a elegant divider line */
+    /* Ensure the center element stays centered cleanly */
     .fixture-vs-center {
-      order: 2;
-      width: 100%;
-      min-width: auto;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #C8BFA9;
-      margin: 6px 0;
-      display: flex;
-      align-items: center;
+      order: unset !important;
+      width: auto !important;
+      min-width: 44px;
+      margin: 0;
     }
     .fixture-vs-center::before,
     .fixture-vs-center::after {
-      content: "";
-      flex: 1;
-      border-bottom: 1px solid var(--line);
-      opacity: 0.6;
-    }
-    .fixture-vs-center::before { margin-right: 12px; }
-    .fixture-vs-center::after { margin-left: 12px; }
-
-    /* Reset widths and text alignments for mobile harmony */
-    .pill-slot {
-      width: auto !important;
-      justify-content: flex-end !important;
-    }
-    
-    .players-slot.left-players,
-    .players-slot.right-players {
-      text-align: left !important;
+      display: none !important; /* Remove the mobile divider lines */
     }
   }
 
