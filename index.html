@@ -222,23 +222,70 @@
   
   @media (max-width: 640px) {
     .fixture-match-row {
-      grid-template-columns: 1fr;
-      gap: 10px;
-      padding: 12px;
-    }
-    .fixture-side.left-side,
-    .fixture-side.right-side {
-      justify-content: center;
+      display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+      padding: 14px;
     }
+    
+    /* Turn each team into a full-width horizontal row */
+    .fixture-side {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+    }
+    
+    /* Arrange layout order for mobile */
+    .fixture-side.left-side {
+      order: 1;
+    }
+    /* Flips Left side so players are on left, pill is on right */
+    .fixture-side.left-side .players-slot {
+      order: 1;
+    }
+    .fixture-side.left-side .pill-slot {
+      order: 2;
+    }
+    
+    .fixture-side.right-side {
+      order: 3;
+    }
+    
+    /* Transform the center VS into a elegant divider line */
+    .fixture-vs-center {
+      order: 2;
+      width: 100%;
+      min-width: auto;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #C8BFA9;
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+    }
+    .fixture-vs-center::before,
+    .fixture-vs-center::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid var(--line);
+      opacity: 0.6;
+    }
+    .fixture-vs-center::before { margin-right: 12px; }
+    .fixture-vs-center::after { margin-left: 12px; }
+
+    /* Reset widths and text alignments for mobile harmony */
     .pill-slot {
-      width: auto;
-      justify-content: center !important;
+      width: auto !important;
+      justify-content: flex-end !important;
     }
+    
     .players-slot.left-players,
     .players-slot.right-players {
-      text-align: center;
+      text-align: left !important;
     }
   }
 
