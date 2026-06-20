@@ -483,64 +483,32 @@ function renderFixtures(){
       metaParts.push(isNaN(d) ? escapeHTML(wInfo.date) : d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'}));
     }
     
-    // --- Aggressive "Super Scavenger" Match Format Lookup ---
+    // Read the scoring format for this week from state.weekFormat (where the
+    // admin tool stores it) and convert to a human-readable label.
+    const weekFormatKey = (state.weekFormat && state.weekFormat[roundNum]) || '';
     let formatText = '';
-    
-    const extractFormat = (obj) => {
-      if (!obj) return '';
-      if (typeof obj === 'string') return obj;
-      const keys = Object.keys(obj);
-      // Scan case-insensitively for any property matching these common schema keys
-      const formatKey = keys.find(k => ['format', 'matchformat', 'type', 'mode', 'formattext', 'name'].includes(k.toLowerCase()));
-      return formatKey ? String(obj[formatKey]) : '';
-    };
+    if(weekFormatKey === 'alternate') formatText = 'Alternate Shot';
+    else if(weekFormatKey === 'bestball') formatText = '4 Ball Better Ball';
+    else if(weekFormatKey === 'singles') formatText = 'Singles';
+    else if(weekFormatKey) formatText = weekFormatKey; // fallback: show raw value
 
-    // Include every possible location where round details are stored
-    const dataTargets = [state.weekInfo, state.weeks, state.roundInfo, state.rounds, state.config, state];
-    
-    for (const target of dataTargets) {
-      if (!target) continue;
-      
-      if (Array.isArray(target)) {
-        // Look through array setups
-        const found = target.find(w => {
-          if (!w) return false;
-          const rVal = w.round || w.week || w.id || w.number;
-          return rVal == roundNum;
-        });
-        if (found) {
-          formatText = extractFormat(found);
-          if (formatText) break;
+    // If weekFormat didn't have it, try individual match objects as a last resort
+    if(!formatText && rounds[roundNum]){
+      for(const m of rounds[roundNum]){
+        const raw = m.format || m.matchFormat || m.type || m.mode || '';
+        if(raw){
+          if(raw.toLowerCase().includes('bestball') || raw.toLowerCase().includes('4ball') || raw.toLowerCase().includes('fourball'))
+            formatText = '4 Ball Better Ball';
+          else if(raw.toLowerCase().includes('single'))
+            formatText = 'Singles';
+          else if(raw.toLowerCase().includes('alternate'))
+            formatText = 'Alternate Shot';
+          else
+            formatText = raw;
+          break;
         }
-      } else {
-        // Look through object structures, supporting string key variants
-        const variations = [
-          roundNum, 
-          `week${roundNum}`, 
-          `week_${roundNum}`, 
-          `week ${roundNum}`, 
-          `round${roundNum}`, 
-          `round_${roundNum}`, 
-          `round ${roundNum}`
-        ];
-        for (const v of variations) {
-          if (target[v]) {
-            formatText = extractFormat(target[v]);
-            if (formatText) break;
-          }
-        }
-        if (formatText) break;
       }
     }
-    
-    // Last resort: If the global configurations don't yield data, check individual matches
-    if (!formatText && rounds[roundNum]) {
-      for (const m of rounds[roundNum]) {
-        formatText = m.format || m.matchFormat || m.type || m.mode || '';
-        if (formatText) break;
-      }
-    }
-    // --------------------------------------------------------
     
     const formatStr = formatText ? ` &mdash; ${escapeHTML(formatText)}` : '';
     
