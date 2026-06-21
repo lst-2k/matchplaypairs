@@ -584,8 +584,7 @@ function renderFixtures(){
 
         if(m.finalized && m.result){
           if(m.result.type==='halved'){
-            leftHtml = `<span class="pill neutral">Tied</span>`;
-			rightHtml = `<span class="pill neutral">Tied</span>`;
+            centerHtml = `<span class="pill neutral">Halved</span>`;
           } else {
             const isLeftWinner = (m.result.winner === leftTeamId);
             const pillHtml = `<span class="pill" style="background:${isLeftWinner ? leftColor : rightColor}; color:${contrastTextColor(isLeftWinner ? leftColor : rightColor)};">${escapeHTML(m.result.label)}</span>`;
