@@ -195,12 +195,12 @@
   }
   .round-label {
     font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold);
-    font-weight:700; margin:18px 0 4px;
+    font-weight:700; margin:18px 0 2px;
   }
   .round-label:first-child{margin-top:0;}
   .week-header {
-    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px 16px;
-    margin:18px 0 4px;
+    display:flex; flex-direction:column; align-items:flex-start;
+    margin:18px 0 4px; gap:2px;
   }
   .week-header:first-child{margin-top:0;}
   .week-header .round-label{margin:0;}
@@ -1042,10 +1042,13 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
 
     let isCounting = false;
     if(isBetterBall){
-      // Only ring this player's score if it's strictly lower than their partner's
-      // (the partner is always the other idx: 0→1, 1→0)
+      // Ring this player if their score is strictly lower than partner's,
+      // or if scores are tied, ring the top player (idx 0) as the hole indicator.
       const partnerScore = hidden ? null : getScore(m,h,team,1-idx);
-      if(v!=null && (partnerScore==null || v < partnerScore)) isCounting = true;
+      if(v!=null){
+        if(partnerScore==null || v < partnerScore) isCounting = true;
+        else if(v === partnerScore && idx === 0) isCounting = true;
+      }
     } else if(isSingles){
       isCounting = (idx === 0);
     } else {
@@ -1063,7 +1066,10 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
     let isCounting = false;
     if(isBetterBall){
       const partnerScore = hidden ? null : getScore(m,h,team,1-idx);
-      if(v!=null && (partnerScore==null || v < partnerScore)) isCounting = true;
+      if(v!=null){
+        if(partnerScore==null || v < partnerScore) isCounting = true;
+        else if(v === partnerScore && idx === 0) isCounting = true;
+      }
     } else if(isSingles){
       isCounting = (idx === 0);
     } else {
