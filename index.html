@@ -317,6 +317,13 @@
   }
   td.noncounting-cell{color:#A39A85; background:#F8F5EC;}
   td.counting-cell{font-weight:700;}
+  .win-ring{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:50%;
+    border:2px solid;
+    font-weight:700; font-family:'JetBrains Mono',monospace;
+    font-size:12px; line-height:1;
+  }
   .par-row td.label{background:#EFE9D8 !important;}
   .par-row td.par-cell{background:#F3EFE2; color:var(--gold); font-weight:700; font-family:'JetBrains Mono',monospace;}
   .hole-status{
@@ -487,7 +494,7 @@ function renderFixtures(){
     // admin tool stores it) and convert to a human-readable label.
     const weekFormatKey = (state.weekFormat && state.weekFormat[roundNum]) || '';
     let formatText = '';
-    if(weekFormatKey === 'alternate') formatText = 'Alternate Hole';
+    if(weekFormatKey === 'alternate') formatText = 'Alternate Shot';
     else if(weekFormatKey === 'bestball') formatText = '4 Ball Better Ball';
     else if(weekFormatKey === 'singles') formatText = 'Singles';
     else if(weekFormatKey) formatText = weekFormatKey; // fallback: show raw value
@@ -502,7 +509,7 @@ function renderFixtures(){
           else if(raw.toLowerCase().includes('single'))
             formatText = 'Singles';
           else if(raw.toLowerCase().includes('alternate'))
-            formatText = 'Alternate Hole';
+            formatText = 'Alternate Shot';
           else
             formatText = raw;
           break;
@@ -927,26 +934,32 @@ function buildScorecardTable(m, pA, pB){
   const tbody = document.createElement('tbody');
   tbody.appendChild(buildParRow(lastRelevantHole));
 
+  // Pre-compute hole results and team colours so buildPlayerRow can
+  // highlight winning scores with a coloured ring.
+  const holeResults = computeHoleResults(m);
+  const teamAColor = (teamById(m.teamA) || {}).color || '#1F4D2C';
+  const teamBColor = (teamById(m.teamB) || {}).color || '#0B3D91';
+
   const isSingles = m.format === 'singles' || pA.filter(p=>p).length <= 1;
 
   if (isSingles) {
-    tbody.appendChild(buildPlayerRow(m, {team:'A', idx:0, player:pA[0], oddEven:'all'}, lastRelevantHole));
+    tbody.appendChild(buildPlayerRow(m, {team:'A', idx:0, player:pA[0], oddEven:'all'}, lastRelevantHole, holeResults, teamAColor));
   } else {
     [
       {team:'A', idx:0, player:pA[0], oddEven:'odd'},
       {team:'A', idx:1, player:pA[1], oddEven:'even'},
-    ].forEach(rowDef=>tbody.appendChild(buildPlayerRow(m, rowDef, lastRelevantHole)));
+    ].forEach(rowDef=>tbody.appendChild(buildPlayerRow(m, rowDef, lastRelevantHole, holeResults, teamAColor)));
   }
 
   tbody.appendChild(buildResultRow(m, lastRelevantHole));
 
   if (isSingles) {
-    tbody.appendChild(buildPlayerRow(m, {team:'B', idx:0, player:pB[0], oddEven:'all'}, lastRelevantHole));
+    tbody.appendChild(buildPlayerRow(m, {team:'B', idx:0, player:pB[0], oddEven:'all'}, lastRelevantHole, holeResults, teamBColor));
   } else {
     [
       {team:'B', idx:0, player:pB[0], oddEven:'odd'},
       {team:'B', idx:1, player:pB[1], oddEven:'even'},
-    ].forEach(rowDef=>tbody.appendChild(buildPlayerRow(m, rowDef, lastRelevantHole)));
+    ].forEach(rowDef=>tbody.appendChild(buildPlayerRow(m, rowDef, lastRelevantHole, holeResults, teamBColor)));
   }
 
   table.appendChild(tbody);
@@ -980,7 +993,7 @@ function buildParRow(lastRelevantHole){
   return tr;
 }
 
-function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole){
+function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeResults, teamColor){
   // 💡 Ultra-robust format detection
   const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
   const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
@@ -1011,6 +1024,17 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole){
   let html = `<td class="label">${escapeHTML(player ? player.name : '?')} <span style="color:#B7AE99; font-size:11px;">${labelHint}</span></td>`;
   let outSum=0, inSum=0, total=0;
 
+  // Helper: wrap score in a ring if this team won this hole
+  const scoreDisplay = (h, v) => {
+    if(v == null) return '';
+    const holeResult = holeResults && holeResults[h-1];
+    const thisTeamWon = holeResult === team; // 'A' or 'B' matches team param
+    if(thisTeamWon && teamColor){
+      return `<span class="win-ring" style="border-color:${teamColor};">${v}</span>`;
+    }
+    return v;
+  };
+
   for(let h=1; h<=9; h++){
     const hidden = h > lastRelevantHole;
     const v = hidden ? null : getScore(m,h,team,idx);
@@ -1021,7 +1045,7 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole){
     else if (isSingles) isCounting = (idx === 0);
     else isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
 
-    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${v!=null?v:''}</td>`;
+    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v)}</td>`;
     if(v!=null){ outSum+=v; total+=v; }
   }
   html += `<td class="out">${outSum||''}</td>`;
@@ -1035,7 +1059,7 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole){
     else if (isSingles) isCounting = (idx === 0);
     else isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
 
-    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${v!=null?v:''}</td>`;
+    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v)}</td>`;
     if(v!=null){ inSum+=v; total+=v; }
   }
   html += `<td class="in">${inSum||''}</td>`;
