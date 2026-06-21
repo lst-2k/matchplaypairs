@@ -1024,12 +1024,13 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
   let html = `<td class="label">${escapeHTML(player ? player.name : '?')} <span style="color:#B7AE99; font-size:11px;">${labelHint}</span></td>`;
   let outSum=0, inSum=0, total=0;
 
-  // Helper: wrap score in a ring if this team won this hole
-  const scoreDisplay = (h, v) => {
+  // Helper: wrap score in a ring only if this team won this hole AND
+  // this player's score was the one that counted for that hole.
+  const scoreDisplay = (h, v, isCounting) => {
     if(v == null) return '';
     const holeResult = holeResults && holeResults[h-1];
     const thisTeamWon = holeResult === team; // 'A' or 'B' matches team param
-    if(thisTeamWon && teamColor){
+    if(thisTeamWon && isCounting && teamColor){
       return `<span class="win-ring" style="border-color:${teamColor};">${v}</span>`;
     }
     return v;
@@ -1038,28 +1039,38 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
   for(let h=1; h<=9; h++){
     const hidden = h > lastRelevantHole;
     const v = hidden ? null : getScore(m,h,team,idx);
-    
-    // Determine cell highlighting
-    let isCounting = false;
-    if (isBetterBall) isCounting = true;
-    else if (isSingles) isCounting = (idx === 0);
-    else isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
 
-    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v)}</td>`;
+    let isCounting = false;
+    if(isBetterBall){
+      // Only ring this player's score if it's strictly lower than their partner's
+      // (the partner is always the other idx: 0→1, 1→0)
+      const partnerScore = hidden ? null : getScore(m,h,team,1-idx);
+      if(v!=null && (partnerScore==null || v < partnerScore)) isCounting = true;
+    } else if(isSingles){
+      isCounting = (idx === 0);
+    } else {
+      isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+    }
+
+    html += `<td class="${(isBetterBall||isSingles||(oddEven==='all')||(oddEven==='odd'&&h%2===1)||(oddEven==='even'&&h%2===0))?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v,isCounting)}</td>`;
     if(v!=null){ outSum+=v; total+=v; }
   }
   html += `<td class="out">${outSum||''}</td>`;
   for(let h=10; h<=18; h++){
     const hidden = h > lastRelevantHole;
     const v = hidden ? null : getScore(m,h,team,idx);
-    
-    // Determine cell highlighting
-    let isCounting = false;
-    if (isBetterBall) isCounting = true;
-    else if (isSingles) isCounting = (idx === 0);
-    else isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
 
-    html += `<td class="${isCounting?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v)}</td>`;
+    let isCounting = false;
+    if(isBetterBall){
+      const partnerScore = hidden ? null : getScore(m,h,team,1-idx);
+      if(v!=null && (partnerScore==null || v < partnerScore)) isCounting = true;
+    } else if(isSingles){
+      isCounting = (idx === 0);
+    } else {
+      isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
+    }
+
+    html += `<td class="${(isBetterBall||isSingles||(oddEven==='all')||(oddEven==='odd'&&h%2===1)||(oddEven==='even'&&h%2===0))?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v,isCounting)}</td>`;
     if(v!=null){ inSum+=v; total+=v; }
   }
   html += `<td class="in">${inSum||''}</td>`;
