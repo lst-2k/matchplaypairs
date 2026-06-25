@@ -588,10 +588,10 @@ function renderFixtures(){
         let leftPlayersHtml = '';
         if(leftPair && leftPair.length > 0){
           const p1 = playerById(leftTeamId, leftPair[0]);
-          leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; font-weight:600;">${escapeHTML(p1 ? p1.name : '?')}${platformBadgeHTML(p1)}</div>`;
+          leftPlayersHtml += `<div style="color: ${leftColor}; font-weight:600;">${escapeHTML(p1 ? p1.name : '?')}${platformBadgeHTML(p1)}</div>`;
           if(leftPair[1]){
             const p2 = playerById(leftTeamId, leftPair[1]);
-            leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${escapeHTML(p2 ? p2.name : '?')}${platformBadgeHTML(p2)}</div>`;
+            leftPlayersHtml += `<div style="color: ${leftColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${escapeHTML(p2 ? p2.name : '?')}${platformBadgeHTML(p2)}</div>`;
           }
         }
 
