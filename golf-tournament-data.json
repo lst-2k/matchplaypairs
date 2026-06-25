@@ -1,0 +1,296 @@
+{
+  "tournamentName": "",
+  "teams": [
+    {
+      "id": "id1_l5pvo",
+      "name": "kafasdasdasddas",
+      "color": "#1f4d2c",
+      "players": [
+        {
+          "id": "id5_peavb",
+          "name": "Ian",
+          "platform": "xbox",
+          "gamertag": "x3offthetee"
+        },
+        {
+          "id": "id6_fv24j",
+          "name": "Neil",
+          "platform": "xbox",
+          "gamertag": "Mr Longpole"
+        },
+        {
+          "id": "id7_ta0ui",
+          "name": "Jamie",
+          "platform": "ps",
+          "gamertag": "Geordieboy85"
+        },
+        {
+          "id": "id8_cixwc",
+          "name": "Mark",
+          "platform": "xbox",
+          "gamertag": "Colly45x"
+        }
+      ]
+    },
+    {
+      "id": "id9_ldr1c",
+      "name": "ookmokmmkm",
+      "color": "#ea1031",
+      "players": [
+        {
+          "id": "id10_fio6n",
+          "name": "Paul",
+          "platform": "steam",
+          "gamertag": "Hammers1man"
+        },
+        {
+          "id": "id11_w6rm0",
+          "name": "Bart",
+          "platform": "xbox",
+          "gamertag": "Bart-Noworries"
+        },
+        {
+          "id": "id12_qfwqv",
+          "name": "Tyler",
+          "platform": "ps",
+          "gamertag": "Bullfrog_Leg"
+        },
+        {
+          "id": "id13_3jqrr",
+          "name": "Bob",
+          "platform": "ps",
+          "gamertag": "WingisBack"
+        }
+      ]
+    }
+  ],
+  "matches": [
+    {
+      "id": "id14_90ocd",
+      "round": 1,
+      "teamA": "id1_l5pvo",
+      "teamB": "id9_ldr1c",
+      "pairA": [
+        "id5_peavb",
+        "id7_ta0ui"
+      ],
+      "pairB": [
+        "id10_fio6n",
+        "id13_3jqrr"
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id15_bqc00",
+      "round": 1,
+      "teamA": "id1_l5pvo",
+      "teamB": "id9_ldr1c",
+      "pairA": [
+        "id6_fv24j",
+        "id8_cixwc"
+      ],
+      "pairB": [
+        "id12_qfwqv",
+        "id11_w6rm0"
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id16_myvd8",
+      "round": 2,
+      "teamA": "id1_l5pvo",
+      "teamB": "id9_ldr1c",
+      "pairA": [
+        "id7_ta0ui",
+        "id5_peavb"
+      ],
+      "pairB": [
+        "id13_3jqrr",
+        "id10_fio6n"
+      ],
+      "scores": {
+        "1": {
+          "A0": 4,
+          "A1": 5,
+          "B0": 4,
+          "B1": 4
+        },
+        "2": {
+          "A0": 5,
+          "A1": 4,
+          "B0": 4,
+          "B1": 3
+        },
+        "3": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 4,
+          "B1": 5
+        },
+        "4": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 3,
+          "B1": 5
+        },
+        "5": {
+          "A0": 3,
+          "A1": 3,
+          "B0": 4,
+          "B1": 5
+        },
+        "6": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 5,
+          "B1": 4
+        },
+        "7": {
+          "A0": 5,
+          "A1": 4,
+          "B0": 4,
+          "B1": 4
+        },
+        "8": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 3,
+          "B1": 4
+        },
+        "9": {
+          "A0": 2,
+          "A1": 5,
+          "B0": 4,
+          "B1": 5
+        },
+        "10": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 3,
+          "B1": 3
+        },
+        "11": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 3,
+          "B1": 4
+        },
+        "12": {
+          "A0": 5,
+          "A1": 3,
+          "B0": 4,
+          "B1": 4
+        },
+        "13": {
+          "A0": 4,
+          "A1": 4,
+          "B0": 5,
+          "B1": 4
+        },
+        "14": {
+          "A0": 3,
+          "A1": 4,
+          "B0": 4,
+          "B1": 4
+        },
+        "15": {
+          "A0": 4,
+          "A1": 5,
+          "B0": 3,
+          "B1": 4
+        },
+        "16": {
+          "A0": 5,
+          "A1": 4,
+          "B0": 4,
+          "B1": 4
+        },
+        "17": {
+          "A0": 4,
+          "A1": 5,
+          "B0": 5,
+          "B1": 4
+        },
+        "18": {
+          "A0": 5,
+          "A1": 4,
+          "B0": 4,
+          "B1": 4
+        }
+      },
+      "finalized": true,
+      "result": {
+        "winner": "id1_l5pvo",
+        "type": "decided",
+        "label": "1 up",
+        "margin": 1,
+        "remaining": 0
+      }
+    },
+    {
+      "id": "id17_2dsyk",
+      "round": 2,
+      "teamA": "id1_l5pvo",
+      "teamB": "id9_ldr1c",
+      "pairA": [
+        "id8_cixwc",
+        "id6_fv24j"
+      ],
+      "pairB": [
+        "id11_w6rm0",
+        "id12_qfwqv"
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    }
+  ],
+  "par": {
+    "1": 4,
+    "2": 4,
+    "3": 4,
+    "4": 4,
+    "5": 4,
+    "6": 4,
+    "7": 4,
+    "8": 4,
+    "9": 4,
+    "10": 4,
+    "11": 4,
+    "12": 4,
+    "13": 4,
+    "14": 4,
+    "15": 4,
+    "16": 4,
+    "17": 4,
+    "18": 4
+  },
+  "weekInfo": {
+    "1": {
+      "venue": "Devils Pulpit",
+      "date": "2026-06-29"
+    },
+    "2": {
+      "venue": "Devils Pulpit",
+      "date": "2026-06-29"
+    }
+  },
+  "weekFormat": {
+    "1": "alternate",
+    "2": "alternate"
+  },
+  "weekConfirm": {
+    "1": {
+      "id1_l5pvo": true,
+      "id9_ldr1c": true
+    },
+    "2": {
+      "id9_ldr1c": true,
+      "id1_l5pvo": true
+    }
+  }
+}
