@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LST 74 'Clubhouse Cup'</title>
+<title>Clubhouse Cup — Tournament</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -481,8 +481,14 @@ function platformBadgeHTML(player){
   if(!player || !player.platform || !PLATFORM_ICONS[player.platform]) return '';
   const color = PLATFORM_COLORS[player.platform];
   const icon = PLATFORM_ICONS[player.platform];
-  const tag = player.gamertag ? escapeHTML(player.gamertag) : '';
-  return `<span class="platform-badge" style="background:${color};" title="${PLATFORM_LABELS[player.platform]}${tag?' : '+tag:''}"><span class="platform-icon">${icon}</span>${tag?`<span class="platform-tag">${tag}</span>`:''}</span>`;
+  const label = PLATFORM_LABELS[player.platform];
+  return `<span class="platform-badge" style="background:${color}; padding:2px 5px;" title="${label}"><span class="platform-icon">${icon}</span></span>`;
+}
+
+// In the viewer, show gamertag if set, otherwise fall back to real name
+function displayName(player){
+  if(!player) return '?';
+  return escapeHTML(player.gamertag || player.name || '?');
 }
 
 function teamById(id){ return state.teams.find(t=>t.id===id); }
@@ -588,20 +594,20 @@ function renderFixtures(){
         let leftPlayersHtml = '';
         if(leftPair && leftPair.length > 0){
           const p1 = playerById(leftTeamId, leftPair[0]);
-          leftPlayersHtml += `<div style="color: ${leftColor}; font-weight:600;">${escapeHTML(p1 ? p1.name : '?')}${platformBadgeHTML(p1)}</div>`;
+          leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; font-weight:600;">${displayName(p1)}${platformBadgeHTML(p1)}</div>`;
           if(leftPair[1]){
             const p2 = playerById(leftTeamId, leftPair[1]);
-            leftPlayersHtml += `<div style="color: ${leftColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${escapeHTML(p2 ? p2.name : '?')}${platformBadgeHTML(p2)}</div>`;
+            leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${displayName(p2)}${platformBadgeHTML(p2)}</div>`;
           }
         }
 
         let rightPlayersHtml = '';
         if(rightPair && rightPair.length > 0){
           const p1 = playerById(rightTeamId, rightPair[0]);
-          rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; font-weight:600;">${escapeHTML(p1 ? p1.name : '?')}${platformBadgeHTML(p1)}</div>`;
+          rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; font-weight:600;">${displayName(p1)}${platformBadgeHTML(p1)}</div>`;
           if(rightPair[1]){
             const p2 = playerById(rightTeamId, rightPair[1]);
-            rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${escapeHTML(p2 ? p2.name : '?')}${platformBadgeHTML(p2)}</div>`;
+            rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${displayName(p2)}${platformBadgeHTML(p2)}</div>`;
           }
         }
 
@@ -666,7 +672,7 @@ function renderFixtures(){
 }
 
 // Calculates layout and positioning for Ryder cup side-dependent pills
-// Returns a small colored pill showing just the result/score (e.g. "3&2", "1up", "AS thru 12"),
+// Returns a small colored pill showing just the result/score (e.g. "3&2", "1 up", "AS thru 12"),
 // colored with the leading/winning team's color.
 function fixtureResultPill(m){
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
@@ -856,8 +862,8 @@ function renderMatchSelect(){
     const opt = document.createElement('option');
     opt.value = m.id;
     const status = matchStatus(m);
-    const namesA = (m.pairA||[]).map(pid=>playerById(m.teamA,pid)).filter(p=>p).map(p=>p.name).join(' & ') || '?';
-    const namesB = (m.pairB||[]).map(pid=>playerById(m.teamB,pid)).filter(p=>p).map(p=>p.name).join(' & ') || '?';
+    const namesA = (m.pairA||[]).map(pid=>playerById(m.teamA,pid)).filter(p=>p).map(p=>p.gamertag||p.name).join(' & ') || '?';
+    const namesB = (m.pairB||[]).map(pid=>playerById(m.teamB,pid)).filter(p=>p).map(p=>p.gamertag||p.name).join(' & ') || '?';
     opt.textContent = `Week ${m.round}: ${ta.name} (${namesA}) vs ${tb.name} (${namesB})${m.finalized ? ' — ' + status.label : ''}`;
     select.appendChild(opt);
   });
@@ -1056,7 +1062,7 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
     labelHint = (oddEven === 'all' ? '(counts: all holes)' : `(counts: ${oddEven==='odd'?'1,3,5...17':'2,4,6...18'})`);
   }
 
-  let html = `<td class="label">${escapeHTML(player ? player.name : '?')}${player ? platformBadgeHTML(player) : ''} <span style="color:#B7AE99; font-size:11px;">${labelHint}</span></td>`;
+  let html = `<td class="label">${displayName(player)}${player ? platformBadgeHTML(player) : ''} <span style="color:#B7AE99; font-size:11px;">${labelHint}</span></td>`;
   let outSum=0, inSum=0, total=0;
 
   // Helper: wrap score in a ring only if this team won this hole AND
