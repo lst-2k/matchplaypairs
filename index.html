@@ -690,14 +690,29 @@ function fixtureResultPill(m){
       textColor = contrastTextColor(bg);
     }
   } else if(st.contiguousThru===0){
-    text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
-  } else if(st.diff===0){
-    text = `AS thru ${st.contiguousThru}`; bg = '#9A8C70'; textColor = '#fff';
+    if(hasPartialScores(m)){
+      text = 'Match pending'; bg = '#C9A227'; textColor = '#fff';
+    } else {
+      text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
+    }
   } else {
-    const leadingTeam = st.diff>0 ? teamA : teamB;
-    text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
-    bg = leadingTeam ? leadingTeam.color : '#2E6B3E';
-    textColor = contrastTextColor(bg);
+    // Check for partial scores beyond last fully-resolved hole
+    const havePartialBeyond = Object.keys(m.scores||{}).some(h=>{
+      const hn = Number(h);
+      if(hn <= st.contiguousThru) return false;
+      const rec = m.scores[h];
+      return rec && Object.values(rec).some(v=>v!=null&&v!=='');
+    });
+    if(havePartialBeyond){
+      text = 'Match pending'; bg = '#C9A227'; textColor = '#fff';
+    } else if(st.diff===0){
+      text = `AS thru ${st.contiguousThru}`; bg = '#9A8C70'; textColor = '#fff';
+    } else {
+      const leadingTeam = st.diff>0 ? teamA : teamB;
+      text = `${Math.abs(st.diff)} up thru ${st.contiguousThru}`;
+      bg = leadingTeam ? leadingTeam.color : '#2E6B3E';
+      textColor = contrastTextColor(bg);
+    }
   }
   return `<span class="pill" style="background:${bg}; color:${textColor};">${escapeHTML(text)}</span>`;
 }
@@ -808,6 +823,21 @@ function computeMatchState(m){
   return {holeResults, running, diff, lastPlayedHole, contiguousThru, decidedAtHole};
 }
 
+// Returns true if some scores have been entered for the match but the scorecard
+// isn't complete enough yet to give a meaningful running result — i.e. we have
+// entries but hole 1 isn't fully resolved, OR there are partial entries beyond
+// the last fully-resolved hole. Either way, showing a live score would mislead.
+function hasPartialScores(m){
+  const scores = m.scores || {};
+  const keys = Object.keys(scores);
+  if(keys.length === 0) return false; // no scores at all
+  // Check if any hole has at least one score entry
+  return keys.some(h => {
+    const rec = scores[h];
+    return rec && Object.values(rec).some(v => v!=null && v!=='');
+  });
+}
+
 function matchStatus(m){
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
   const st = computeMatchState(m);
@@ -825,15 +855,15 @@ function matchStatus(m){
   }
 
   if(st.contiguousThru===0){
+    // Scores may have been partially entered but no hole is fully resolved yet
+    if(hasPartialScores(m)) return {label:'Match pending', cls:'pending'};
     return {label:'Not started', cls:''};
   }
 
   if(st.decidedAtHole !== null){
     const holesRemaining = 18 - st.decidedAtHole;
     const leadAtDecision = Math.abs(st.running[st.decidedAtHole-1]);
-    const margin = leadAtDecision;
-    const remaining = holesRemaining;
-    const label = formatMatchMargin(margin, remaining);
+    const label = formatMatchMargin(leadAtDecision, holesRemaining);
     return {label: `${st.diff>0?'A':'B'} wins ${label}`, cls: st.diff>0?'up':'down', autofinal:true};
   }
 
@@ -842,6 +872,15 @@ function matchStatus(m){
     const margin = Math.abs(st.diff);
     return {label:`${st.diff>0?'A':'B'} wins ${formatMatchMargin(margin, 0)}`, cls: st.diff>0?'up':'down', autofinal:true};
   }
+
+  // Check for partial scores beyond the last fully-resolved hole
+  const havePartialBeyond = Object.keys(m.scores||{}).some(h=>{
+    const hn = Number(h);
+    if(hn <= st.contiguousThru) return false;
+    const rec = m.scores[h];
+    return rec && Object.values(rec).some(v=>v!=null&&v!=='');
+  });
+  if(havePartialBeyond) return {label:'Match pending', cls:'pending'};
 
   const holesPlayed = st.contiguousThru;
   const thru = `thru ${holesPlayed}`;
@@ -1182,20 +1221,38 @@ function updateStatusLine(m){
   if(!el) return;
   const st = computeMatchState(m);
   const ta = teamById(m.teamA), tb = teamById(m.teamB);
-  if(st.contiguousThru===0){
-    el.textContent = 'No scores entered yet for this match.';
+
+  if(m.finalized && m.result){
+    if(m.result.type==='halved') el.textContent = 'Final result: Halved (All Square through 18).';
+    else {
+      const winner = m.result.winner===m.teamA ? ta : tb;
+      el.textContent = `Final result: ${winner.name} won ${m.result.label}.`;
+    }
     return;
   }
+
+  if(st.contiguousThru===0){
+    el.textContent = hasPartialScores(m)
+      ? 'Scores are being entered — waiting for all players to complete each hole.'
+      : 'No scores entered yet for this match.';
+    return;
+  }
+
+  // Check for partial entries beyond the last fully-resolved hole
+  const havePartialBeyond = Object.keys(m.scores||{}).some(h=>{
+    const hn = Number(h);
+    if(hn <= st.contiguousThru) return false;
+    const rec = m.scores[h];
+    return rec && Object.values(rec).some(v=>v!=null&&v!=='');
+  });
+  if(havePartialBeyond){
+    el.textContent = `Through hole ${st.contiguousThru} (scores pending for later holes — waiting for all players).`;
+    return;
+  }
+
   let txt = `Through hole ${st.contiguousThru}: `;
   if(st.diff===0) txt += 'All Square.';
   else txt += `${st.diff>0?ta.name:tb.name} ${Math.abs(st.diff)} up.`;
-  if(m.finalized && m.result){
-    if(m.result.type==='halved') txt = 'Final result: Halved (All Square through 18).';
-    else {
-      const winner = m.result.winner===m.teamA ? ta : tb;
-      txt = `Final result: ${winner.name} won ${m.result.label}.`;
-    }
-  }
   el.textContent = txt;
 }
 
