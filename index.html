@@ -676,9 +676,10 @@ function renderFixtures(){
 // colored with the leading/winning team's color.
 function fixtureResultPill(m){
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
-  const st = computeMatchState(m);
+  const status = matchStatus(m);
 
   let text, bg, textColor;
+
   if(m.finalized && m.result){
     const r = m.result;
     if(r.type==='halved'){
@@ -689,23 +690,14 @@ function fixtureResultPill(m){
       bg = winnerTeam ? winnerTeam.color : '#9A8C70';
       textColor = contrastTextColor(bg);
     }
-  } else if(st.contiguousThru===0){
-    if(hasPartialScores(m)){
-      text = 'Match pending'; bg = '#C9A227'; textColor = '#fff';
-    } else {
-      text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
-    }
+  } else if(status.cls==='pending' || status.label==='Match pending'){
+    text = 'Match pending'; bg = '#C9A227'; textColor = '#fff';
+  } else if(status.label==='Not started'){
+    text = 'Not started'; bg = '#DDD6C5'; textColor = '#5C5546';
   } else {
-    // Check for partial scores beyond last fully-resolved hole
-    const havePartialBeyond = Object.keys(m.scores||{}).some(h=>{
-      const hn = Number(h);
-      if(hn <= st.contiguousThru) return false;
-      const rec = m.scores[h];
-      return rec && Object.values(rec).some(v=>v!=null&&v!=='');
-    });
-    if(havePartialBeyond){
-      text = 'Match pending'; bg = '#C9A227'; textColor = '#fff';
-    } else if(st.diff===0){
+    // Clean live score — all scores present and contiguous
+    const st = computeMatchState(m);
+    if(st.diff===0){
       text = `AS thru ${st.contiguousThru}`; bg = '#9A8C70'; textColor = '#fff';
     } else {
       const leadingTeam = st.diff>0 ? teamA : teamB;
@@ -714,14 +706,11 @@ function fixtureResultPill(m){
       textColor = contrastTextColor(bg);
     }
   }
+
   return `<span class="pill" style="background:${bg}; color:${textColor};">${escapeHTML(text)}</span>`;
 }
 
 /* ============ SCORING ENGINE ============ */
-/* ============ SCORING ENGINE (read-only) ============ */
-// Returns array of 18 hole results: 'A' win, 'B' win, 'halve', or null (not played)
-/* ============ SCORING ENGINE (read-only) ============ */
-/* ============ SCORING ENGINE (read-only) ============ */
 function computeHoleResults(m){
   const results = [];
   
