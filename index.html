@@ -37,27 +37,7 @@
   .mono{font-family:'JetBrains Mono',monospace;}
 
   /* Header */
-  header{
-    background:var(--fairway);
-    color:var(--cream);
-    padding:28px 24px 22px;
-    position:relative;
-    overflow:hidden;
-  }
-  header::after{
-    content:"";
-    position:absolute; inset:0;
-    background:
-      repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px);
-    pointer-events:none;
-  }
-  header .wrap{max-width:1100px;margin:0 auto;position:relative;}
-  header h1{font-size:clamp(28px,5vw,42px); font-weight:700;}
-  header .meta{
-    margin-top:10px;
-    display:flex; flex-wrap:wrap; gap:10px 22px;
-    font-size:14px; color:#D9E6DA;
-  }
+  header{ padding:0; background:none; }
 
   /* Layout */
   .container{max-width:1100px; margin:0 auto; padding:24px;}
@@ -291,6 +271,25 @@
 
   /* Scorecard */
   .scorecard-wrap{overflow-x:auto;}
+  .scorecard-toggle-row{
+    display:flex; justify-content:flex-end;
+    padding:6px 0 2px;
+  }
+  .scorecard-toggle-btn{
+    font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
+    color:var(--fairway); background:none; border:1.5px solid var(--fairway);
+    border-radius:999px; padding:5px 14px; cursor:pointer;
+    transition:background 0.15s, color 0.15s;
+  }
+  .scorecard-toggle-btn:hover{background:var(--fairway); color:#fff;}
+  .inline-scorecard-wrap{
+    border-top:1px solid var(--line);
+    margin-top:6px; padding-top:10px;
+  }
+  .inline-scorecard-card{
+    background:#fff; border-radius:10px; padding:14px;
+    border:1px solid var(--line);
+  }
   table.scorecard{
     border-collapse:collapse;
     width:100%;
@@ -383,41 +382,229 @@
     .card{padding:14px;}
     header{padding:20px 14px;}
   }
+  /* ===== LEGEND SIM TOURS BANNER ===== */
+  .lsc-wrap{
+    position:relative; width:100%; min-height:300px;
+    background:#0a1a0c; overflow:hidden; font-family:'Inter',sans-serif;
+  }
+  .lsc-turf{position:absolute;bottom:0;left:0;right:0;height:90px;background:#0D2A10;}
+  .lsc-turf-lines{position:absolute;inset:0;overflow:hidden;}
+  .lsc-stars{position:absolute;inset:0;}
+  .lsc-star{
+    position:absolute; border-radius:50%; background:#fff;
+    animation:lsc-twinkle var(--d,3s) ease-in-out infinite var(--delay,0s);
+    opacity:var(--op,0.4);
+  }
+  @keyframes lsc-twinkle{
+    0%,100%{opacity:var(--op,0.4);transform:scale(1);}
+    50%{opacity:1;transform:scale(1.6);}
+  }
+  .lsc-glow{
+    position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+    width:500px;height:200px;
+    background:radial-gradient(ellipse,rgba(31,77,44,0.55) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .lsc-content{
+    position:relative;z-index:2;
+    display:flex;flex-direction:column;align-items:center;
+    padding:32px 24px 24px;gap:0;
+  }
+  .lsc-trophy{
+    font-size:28px;margin-bottom:4px;
+    animation:lsc-fadeUp 0.8s ease forwards 0.1s,lsc-glow 2.5s ease-in-out infinite 1.5s;
+    opacity:0;
+  }
+  @keyframes lsc-glow{
+    0%,100%{filter:drop-shadow(0 0 4px rgba(201,162,39,0.3));}
+    50%{filter:drop-shadow(0 0 12px rgba(201,162,39,0.8));}
+  }
+  .lsc-eyebrow{
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    color:#C9A227;font-weight:600;margin-bottom:10px;
+    opacity:0;animation:lsc-fadeUp 0.7s ease forwards 0.2s;
+  }
+  .lsc-title{
+    font-family:'Fraunces',serif;
+    font-size:clamp(24px,5vw,46px);font-weight:700;
+    color:#F7F4EC;text-align:center;line-height:1.1;margin:0;
+    opacity:0;animation:lsc-fadeUp 0.8s ease forwards 0.45s;
+    text-shadow:0 2px 24px rgba(0,0,0,0.6);
+  }
+  .lsc-title span{color:#C9A227;}
+  .lsc-divider{
+    display:flex;align-items:center;gap:10px;
+    margin:16px 0 14px;width:100%;max-width:480px;
+    opacity:0;animation:lsc-fadeUp 0.7s ease forwards 0.75s;
+  }
+  .lsc-divider-line{flex:1;height:1px;background:linear-gradient(to right,transparent,#C9A227,transparent);}
+  .lsc-formats{
+    display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+    opacity:0;animation:lsc-fadeUp 0.7s ease forwards 1s;
+  }
+  .lsc-format-pill{
+    padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;
+    letter-spacing:0.04em;text-transform:uppercase;border:1px solid;
+    transition:transform 0.2s ease;cursor:default;
+  }
+  .lsc-format-pill:hover{transform:translateY(-2px);}
+  .lsc-pill-alt{background:rgba(31,77,44,0.25);border-color:#2E6B3E;color:#7ECB8F;}
+  .lsc-pill-bb{background:rgba(201,162,39,0.15);border-color:#C9A227;color:#E8C35A;}
+  .lsc-pill-singles{background:rgba(59,110,165,0.2);border-color:#3B6EA5;color:#7FB2E8;}
+  .lsc-ticker-wrap{
+    position:relative;z-index:3;width:100%;
+    background:rgba(0,0,0,0.5);border-top:1px solid rgba(201,162,39,0.25);
+    overflow:hidden;height:34px;display:flex;align-items:center;
+  }
+  .lsc-ticker-label{
+    flex-shrink:0;padding:0 12px;font-size:10px;font-weight:700;
+    letter-spacing:0.15em;color:#C9A227;text-transform:uppercase;
+    border-right:1px solid rgba(201,162,39,0.3);height:100%;
+    display:flex;align-items:center;background:rgba(201,162,39,0.08);
+  }
+  .lsc-ticker-scroll{
+    display:flex;align-items:center;white-space:nowrap;
+    animation:lsc-scroll 8s linear infinite;
+  }
+  .lsc-ticker-item{
+    padding:0 20px;font-size:11px;font-weight:500;
+    color:#D9E6DA;letter-spacing:0.03em;
+    display:flex;align-items:center;gap:8px;
+  }
+  .lsc-ticker-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+  .lsc-ticker-dot-gold{background:#C9A227;}
+  .lsc-ticker-dot-green{background:#2E6B3E;}
+  .lsc-ticker-dot-blue{background:#3B6EA5;}
+  @keyframes lsc-scroll{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-50%);}
+  }
+  @keyframes lsc-fadeUp{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  .lsc-flag{
+    position:absolute;bottom:90px;
+    animation:lsc-wave 2.5s ease-in-out infinite;transform-origin:bottom left;
+  }
+  @keyframes lsc-wave{
+    0%,100%{transform:rotate(-2deg);}
+    50%{transform:rotate(2deg);}
+  }
+  .lsc-ball{
+    position:absolute;width:8px;height:8px;border-radius:50%;
+    background:#F7F4EC;opacity:0;
+    animation:lsc-float var(--bd,6s) ease-in-out infinite var(--bdelay,0s);
+  }
+  @keyframes lsc-float{
+    0%{opacity:0;transform:translateY(0) translateX(0);}
+    10%{opacity:0.6;}
+    90%{opacity:0.6;}
+    100%{opacity:0;transform:translateY(-120px) translateX(var(--bx,20px));}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <h1 id="venueDisplay">Clubhouse Cup</h1>
+<header style="padding:0; background:none; overflow:visible;">
+<div class="lsc-wrap" role="banner" aria-label="Legend Sim Tours Challenge Trophy">
+
+  <div class="lsc-stars" id="lsc-stars"></div>
+  <div class="lsc-glow"></div>
+
+  <div class="lsc-ball" style="--bd:7s;--bdelay:0s;--bx:30px;left:15%;bottom:95px;"></div>
+  <div class="lsc-ball" style="--bd:9s;--bdelay:1.5s;--bx:-20px;left:30%;bottom:95px;"></div>
+  <div class="lsc-ball" style="--bd:8s;--bdelay:3s;--bx:10px;left:65%;bottom:95px;"></div>
+  <div class="lsc-ball" style="--bd:6s;--bdelay:4.5s;--bx:-30px;left:80%;bottom:95px;"></div>
+
+  <svg class="lsc-flag" style="left:12%;bottom:90px;" width="36" height="60" viewBox="0 0 36 60" fill="none">
+    <line x1="2" y1="0" x2="2" y2="58" stroke="#9A8C70" stroke-width="2"/>
+    <path d="M2 4 L30 12 L2 22 Z" fill="#C9A227" opacity="0.85"/>
+  </svg>
+  <svg class="lsc-flag" style="right:14%;bottom:90px;" width="36" height="50" viewBox="0 0 36 50" fill="none">
+    <line x1="2" y1="0" x2="2" y2="48" stroke="#9A8C70" stroke-width="2"/>
+    <path d="M2 4 L28 11 L2 19 Z" fill="#1F4D2C" opacity="0.9"/>
+  </svg>
+
+  <div class="lsc-turf">
+    <div class="lsc-turf-lines">
+      <svg width="100%" height="90" viewBox="0 0 680 90" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a4020"/>
+            <stop offset="100%" stop-color="#0D2A10"/>
+          </linearGradient>
+        </defs>
+        <rect width="680" height="90" fill="url(#tg)"/>
+        <rect x="0"   y="0" width="68" height="90" fill="#1b4522" opacity="0.5"/>
+        <rect x="68"  y="0" width="68" height="90" fill="#163a1c" opacity="0.5"/>
+        <rect x="136" y="0" width="68" height="90" fill="#1b4522" opacity="0.5"/>
+        <rect x="204" y="0" width="68" height="90" fill="#163a1c" opacity="0.5"/>
+        <rect x="272" y="0" width="68" height="90" fill="#1b4522" opacity="0.5"/>
+        <rect x="340" y="0" width="68" height="90" fill="#163a1c" opacity="0.5"/>
+        <rect x="408" y="0" width="68" height="90" fill="#1b4522" opacity="0.5"/>
+        <rect x="476" y="0" width="68" height="90" fill="#163a1c" opacity="0.5"/>
+        <rect x="544" y="0" width="68" height="90" fill="#1b4522" opacity="0.5"/>
+        <rect x="612" y="0" width="68" height="90" fill="#163a1c" opacity="0.5"/>
+        <line x1="0" y1="2" x2="680" y2="2" stroke="#2E6B3E" stroke-width="1" opacity="0.4"/>
+      </svg>
+    </div>
   </div>
+
+  <div class="lsc-content">
+    <div class="lsc-trophy">🏆</div>
+    <div class="lsc-eyebrow">Official Tournament</div>
+    <h1 class="lsc-title" id="venueDisplay">Legend Sim Tours<br><span>Challenge Trophy</span></h1>
+    <div class="lsc-divider">
+      <div class="lsc-divider-line"></div>
+      <svg class="lsc-divider-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="#C9A227" stroke-width="1.5"/>
+        <circle cx="8" cy="8" r="2" fill="#C9A227"/>
+      </svg>
+      <div class="lsc-divider-line"></div>
+    </div>
+    <div class="lsc-formats">
+      <span class="lsc-format-pill lsc-pill-alt">⛳ Alternate Hole</span>
+      <span class="lsc-format-pill lsc-pill-bb">🏌️ 4 Ball Better Ball</span>
+      <span class="lsc-format-pill lsc-pill-singles">🎯 Singles</span>
+    </div>
+  </div>
+
+  <div class="lsc-ticker-wrap">
+    <div class="lsc-ticker-label">Live</div>
+    <div style="overflow:hidden;flex:1;">
+      <div class="lsc-ticker-scroll">
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-gold"></span>Alternate Hole — players split holes, odd &amp; even</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-green"></span>4 Ball Better Ball — best score on each hole counts</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-blue"></span>Singles — head to head, lowest score wins the hole</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-gold"></span>Captains pick their pairings each week</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-green"></span>Matches decided by matchplay — most holes won takes the points</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-blue"></span>Weekly format rotates — strategy changes every round</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-gold"></span>Alternate Hole — players split holes, odd &amp; even</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-green"></span>4 Ball Better Ball — best score on each hole counts</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-blue"></span>Singles — head to head, lowest score wins the hole</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-gold"></span>Captains pick their pairings each week</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-green"></span>Matches decided by matchplay — most holes won takes the points</div>
+        <div class="lsc-ticker-item"><span class="lsc-ticker-dot lsc-ticker-dot-blue"></span>Weekly format rotates — strategy changes every round</div>
+      </div>
+    </div>
+  </div>
+</div>
 </header>
 
 <div class="container">
   <div class="tabs">
-    <button class="tab active" data-tab="fixtures">Fixtures</button>
-    <button class="tab" data-tab="scoring">Scorecards</button>
+    <button class="tab active" data-tab="fixtures">Fixtures &amp; Results</button>
     <button class="tab" data-tab="leaderboard">Leaderboard</button>
   </div>
 
-  <!-- FIXTURES -->
+  <!-- FIXTURES & RESULTS -->
   <section class="panel active" id="panel-fixtures">
     <div id="fixturesContainer"></div>
     <div id="fixturesEmpty" class="empty-state" style="display:none;">
       <h4>No fixtures yet</h4>
       <p>Check back once the tournament schedule has been published.</p>
     </div>
-  </section>
-
-  <!-- SCORING -->
-  <section class="panel" id="panel-scoring">
-    <div class="card">
-      <h3>Select a match</h3>
-      <select id="matchSelect" onchange="renderScoring()">
-        <option value="">— choose a match —</option>
-      </select>
-    </div>
-    <div id="scoringContainer"></div>
   </section>
 
   <!-- LEADERBOARD -->
@@ -455,7 +642,6 @@ document.querySelectorAll('.tab').forEach(tab=>{
     tab.classList.add('active');
     document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
     if(tab.dataset.tab==='fixtures') renderFixtures();
-    if(tab.dataset.tab==='scoring') renderScoring();
     if(tab.dataset.tab==='leaderboard') renderLeaderboard();
   });
 });
@@ -638,7 +824,7 @@ function renderFixtures(){
         }
 
         return `
-          <div class="fixture-match-row">
+          <div class="fixture-match-row" id="match-row-${m.id}">
             <div class="fixture-side left-side">
               <div class="pill-slot left-pill">${leftPillHtml}</div>
               <div class="players-slot left-players">
@@ -655,6 +841,12 @@ function renderFixtures(){
               <div class="pill-slot right-pill">${rightPillHtml}</div>
             </div>
           </div>
+          <div class="scorecard-toggle-row">
+            <button class="scorecard-toggle-btn" onclick="toggleInlineScorecard('${m.id}', this)">
+              Show scorecard ▾
+            </button>
+          </div>
+          <div class="inline-scorecard-wrap" id="inline-sc-${m.id}" style="display:none;"></div>
         `;
       }).join('');
 
@@ -879,103 +1071,99 @@ function matchStatus(m){
 }
 
 /* ============ SCORECARD UI ============ */
-function renderMatchSelect(){
-  const select = document.getElementById('matchSelect');
-  const current = select.value;
-  select.innerHTML = '<option value="">— choose a match —</option>';
-  const sorted = state.matches.slice().sort((a,b)=>a.round-b.round);
-  sorted.forEach(m=>{
-    const ta = teamById(m.teamA), tb = teamById(m.teamB);
-    if(!ta||!tb) return;
-    const opt = document.createElement('option');
-    opt.value = m.id;
-    const status = matchStatus(m);
-    const namesA = (m.pairA||[]).map(pid=>playerById(m.teamA,pid)).filter(p=>p).map(p=>p.gamertag||p.name).join(' & ') || '?';
-    const namesB = (m.pairB||[]).map(pid=>playerById(m.teamB,pid)).filter(p=>p).map(p=>p.gamertag||p.name).join(' & ') || '?';
-    opt.textContent = `Week ${m.round}: ${ta.name} (${namesA}) vs ${tb.name} (${namesB})${m.finalized ? ' — ' + status.label : ''}`;
-    select.appendChild(opt);
-  });
-  if(state.matches.find(m=>m.id===current)) select.value = current;
-}
-
-function renderScoring(){
-  renderMatchSelect();
-  const container = document.getElementById('scoringContainer');
-  const select = document.getElementById('matchSelect');
-  const matchId = select.value;
-  container.innerHTML = '';
-
-  if(!matchId){
-    container.innerHTML = `<div class="empty-state"><h4>No match selected</h4><p>Choose a match above to view its scorecard.</p></div>`;
+// Toggles an inline scorecard below a match row in the Fixtures & Results tab.
+// Multiple can be open simultaneously — each is independent.
+function toggleInlineScorecard(matchId, btn){
+  const wrap = document.getElementById('inline-sc-' + matchId);
+  if(!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  if(isOpen){
+    wrap.style.display = 'none';
+    btn.textContent = 'Show scorecard ▾';
     return;
   }
+  // Build the scorecard into the container
+  wrap.innerHTML = '';
+  const card = buildInlineScorecardCard(matchId);
+  if(card) wrap.appendChild(card);
+  wrap.style.display = 'block';
+  btn.textContent = 'Hide scorecard ▴';
+}
+
+function buildInlineScorecardCard(matchId){
   const m = state.matches.find(mm=>mm.id===matchId);
-  if(!m) return;
+  if(!m) return null;
   const ta = teamById(m.teamA), tb = teamById(m.teamB);
-  const pA = m.pairA.map(pid=>playerById(m.teamA,pid));
-  const pB = m.pairB.map(pid=>playerById(m.teamB,pid));
+  if(!ta || !tb) return null;
+
+  const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
+  const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
+  const isBetterBall = cleanFormat.includes('4ball') || cleanFormat.includes('betterball') ||
+                       cleanFormat.includes('bestball') || cleanFormat.includes('fourball');
+  const isSingles = cleanFormat.includes('single');
+
+  const pairOk = (p, fmt)=> p && p[0]!=null && (fmt==='singles' ? true : p[1]!=null);
+  if(!pairOk(m.pairA, isSingles?'singles':'pairs') || !pairOk(m.pairB, isSingles?'singles':'pairs')){
+    const msg = document.createElement('div');
+    msg.className = 'empty-state';
+    msg.style.padding = '20px';
+    msg.innerHTML = `<h4>${isSingles?'Players':'Pairs'} not confirmed yet</h4><p>Check back once captains have locked in their selections.</p>`;
+    return msg;
+  }
+
+  const pA = m.pairA.map(pid=>pid!=null ? playerById(m.teamA,pid) : null);
+  const pB = m.pairB.map(pid=>pid!=null ? playerById(m.teamB,pid) : null);
 
   const card = document.createElement('div');
-  card.className='card';
+  card.className = 'inline-scorecard-card';
 
   const status = matchStatus(m);
   const endedEarly = m.finalized && m.result && m.result.type==='decided' && m.result.remaining > 0;
 
-  // Robust format detection
-  const formatName = m.format || (state.weekFormat && state.weekFormat[m.round]) || '';
-  const cleanFormat = formatName.toLowerCase().replace(/[\s-_]/g, '');
-  const isBetterBall = cleanFormat.includes('4ball') || 
-                       cleanFormat.includes('betterball') || 
-                       cleanFormat.includes('bestball') || 
-                       cleanFormat.includes('fourball');
-  const isSingles = cleanFormat.includes('single');
-
-  // 🎨 Calculate dynamic team colors for the scorecard header status pill
   const st = computeMatchState(m);
-  let pillBg = '#9A8C70'; // Default gray for All Square / Halved
-  let pillColor = '#fff';
-
-  if(m.finalized && m.result){
-    if(m.result.type !== 'halved'){
-      const winnerTeam = m.result.winner === m.teamA ? ta : tb;
-      if(winnerTeam) {
-        pillBg = winnerTeam.color;
-        pillColor = contrastTextColor(pillBg);
-      }
-    }
-  } else if(st.contiguousThru === 0){
-    pillBg = '#DDD6C5'; // Not started
-    pillColor = '#5C5546';
-  } else if(st.diff !== 0){
-    const leadingTeam = st.diff > 0 ? ta : tb;
-    if(leadingTeam) {
-      pillBg = leadingTeam.color;
-      pillColor = contrastTextColor(pillBg);
-    }
-  }
+  let pillBg = '#9A8C70'; let pillColor = '#fff';
+  if(m.finalized && m.result && m.result.type !== 'halved'){
+    const wt = m.result.winner===m.teamA ? ta : tb;
+    if(wt){ pillBg=wt.color; pillColor=contrastTextColor(pillBg); }
+  } else if(st.contiguousThru===0){ pillBg='#DDD6C5'; pillColor='#5C5546'; }
+  else if(st.diff!==0){ const lt=st.diff>0?ta:tb; if(lt){pillBg=lt.color;pillColor=contrastTextColor(pillBg);} }
 
   card.innerHTML = `
     <div class="match-header">
       <h3><span class="swatch" style="background:${ta.color}"></span>${escapeHTML(ta.name)} <span style="color:#C8BFA9;">vs</span> <span class="swatch" style="background:${tb.color}"></span>${escapeHTML(tb.name)}</h3>
-      <span class="pill ${status.cls}" style="background:${pillBg}; color:${pillColor};">${status.label}</span>
+      <span class="pill" style="background:${pillBg}; color:${pillColor};">${status.label}</span>
     </div>
     <div class="scorecard-wrap"></div>
-    
     ${(isBetterBall || isSingles) ? '' : `
     <div class="scorecard-legend">
       <span class="key"><span class="swatch-box counts"></span> Counts toward match result</span>
-      <span class="key"><span class="swatch-box nocounts"></span> Recorded for the round, doesn't affect the match</span>
-    </div>
-    `}
-    
+      <span class="key"><span class="swatch-box nocounts"></span> Doesn't affect the match</span>
+    </div>`}
     ${endedEarly ? `<div class="status-line">Match ended ${m.result.label} — remaining holes aren't shown since they didn't affect the result.</div>` : ''}
-    <div class="status-line" id="statusLine"></div>
+    <div class="status-line" id="statusLine-${m.id}"></div>
   `;
-  container.appendChild(card);
+
   card.querySelector('.scorecard-wrap').appendChild(buildScorecardTable(m, pA, pB));
 
-  updateStatusLine(m);
+  // Update status line
+  const el = card.querySelector('.status-line[id]');
+  if(el){
+    if(m.finalized && m.result){
+      el.textContent = m.result.type==='halved'
+        ? 'Final result: Halved (All Square through 18).'
+        : `Final result: ${(m.result.winner===m.teamA?ta:tb).name} won ${m.result.label}.`;
+    } else if(st.contiguousThru===0){
+      el.textContent = hasPartialScores(m)
+        ? 'Scores are being entered — waiting for all players to complete each hole.'
+        : 'No scores entered yet for this match.';
+    } else {
+      el.textContent = `Through hole ${st.contiguousThru}: ${st.diff===0?'All Square.':`${(st.diff>0?ta:tb).name} ${Math.abs(st.diff)} up.`}`;
+    }
+  }
+
+  return card;
 }
+
 
 function buildScorecardTable(m, pA, pB){
   const table = document.createElement('table');
@@ -1205,45 +1393,6 @@ function statusCellHTML(st, h, teamA, teamB){
   return `<td><span class="hole-status" style="background:${bg}; color:${textColor};">${label}</span></td>`;
 }
 
-function updateStatusLine(m){
-  const el = document.getElementById('statusLine');
-  if(!el) return;
-  const st = computeMatchState(m);
-  const ta = teamById(m.teamA), tb = teamById(m.teamB);
-
-  if(m.finalized && m.result){
-    if(m.result.type==='halved') el.textContent = 'Final result: Halved (All Square through 18).';
-    else {
-      const winner = m.result.winner===m.teamA ? ta : tb;
-      el.textContent = `Final result: ${winner.name} won ${m.result.label}.`;
-    }
-    return;
-  }
-
-  if(st.contiguousThru===0){
-    el.textContent = hasPartialScores(m)
-      ? 'Scores are being entered — waiting for all players to complete each hole.'
-      : 'No scores entered yet for this match.';
-    return;
-  }
-
-  // Check for partial entries beyond the last fully-resolved hole
-  const havePartialBeyond = Object.keys(m.scores||{}).some(h=>{
-    const hn = Number(h);
-    if(hn <= st.contiguousThru) return false;
-    const rec = m.scores[h];
-    return rec && Object.values(rec).some(v=>v!=null&&v!=='');
-  });
-  if(havePartialBeyond){
-    el.textContent = `Through hole ${st.contiguousThru} (scores pending for later holes — waiting for all players).`;
-    return;
-  }
-
-  let txt = `Through hole ${st.contiguousThru}: `;
-  if(st.diff===0) txt += 'All Square.';
-  else txt += `${st.diff>0?ta.name:tb.name} ${Math.abs(st.diff)} up.`;
-  el.textContent = txt;
-}
 
 /* ============ LEADERBOARD ============ */
 function renderLeaderboard(){
@@ -1318,11 +1467,13 @@ async function loadData(){
     state.weekInfo = state.weekInfo || {};
     state.weekPar = state.weekPar || {};
 
-    document.getElementById('venueDisplay').textContent = state.tournamentName ? state.tournamentName : 'Clubhouse Cup';
+    const titleEl = document.getElementById('venueDisplay');
+    if(titleEl){
+      const name = state.tournamentName || 'Legend Sim Tours';
+      titleEl.innerHTML = `${escapeHTML(name)}<br><span>Challenge Trophy</span>`;
+    }
 
     renderFixtures();
-    renderMatchSelect();
-    renderScoring();
     renderLeaderboard();
   }catch(err){
     console.error(err);
@@ -1333,6 +1484,20 @@ async function loadData(){
 }
 
 loadData();
+</script>
+<script>
+// Generate twinkling stars for the banner
+(function(){
+  const container = document.getElementById('lsc-stars');
+  if(!container) return;
+  for(let i=0;i<55;i++){
+    const s = document.createElement('div');
+    s.className = 'lsc-star';
+    const size = Math.random() < 0.2 ? 3 : 2;
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*72}%;width:${size}px;height:${size}px;--d:${2.5+Math.random()*4}s;--delay:-${Math.random()*5}s;--op:${0.2+Math.random()*0.5};`;
+    container.appendChild(s);
+  }
+})();
 </script>
 </body>
 </html>
