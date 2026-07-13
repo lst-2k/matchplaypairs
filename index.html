@@ -464,7 +464,7 @@
   }
   .lsc-ticker-scroll{
     display:flex;align-items:center;white-space:nowrap;
-    animation:lsc-scroll 30s linear infinite;
+    animation:lsc-scroll 24s linear infinite;
   }
   .lsc-ticker-item{
     padding:0 20px;font-size:11px;font-weight:500;
@@ -554,7 +554,7 @@
   <div class="lsc-content">
     <div class="lsc-trophy">🏆</div>
     <div class="lsc-eyebrow">Official Tournament</div>
-    <h1 class="lsc-title" id="venueDisplay">Legend Sim Tours<br><span>Challenge Trophy</span></h1>
+    <h1 class="lsc-title" id="venueDisplay">Legend Sim Tours <span>Challenge Trophy</span></h1>
     <div class="lsc-divider">
       <div class="lsc-divider-line"></div>
       <svg class="lsc-divider-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -1463,8 +1463,8 @@ async function loadData(){
 
     const titleEl = document.getElementById('venueDisplay');
     if(titleEl){
-      const name = state.tournamentName || 'Legend Sim Tours';
-      titleEl.innerHTML = `${escapeHTML(name)}<br><span>Challenge Trophy</span>`;
+      const name = state.tournamentName || 'Legend Sim Tours Challenge Trophy';
+      titleEl.innerHTML = escapeHTML(name);
     }
 
     renderFixtures();
