@@ -1655,6 +1655,142 @@
         "label": "AS",
         "winner": null
       }
+    },
+    {
+      "id": "id1_on71t",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id3_20fc7",
+        null
+      ],
+      "pairB": [
+        "id17_3zrfo",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id2_dlmvi",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id10_4fycc",
+        null
+      ],
+      "pairB": [
+        "id13_z4227",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id3_q4h3q",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id7_in5rj",
+        null
+      ],
+      "pairB": [
+        "id14_pcnyq",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id4_rtiql",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id5_5yhzi",
+        null
+      ],
+      "pairB": [
+        "id21_y6klg",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id5_fhvvd",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id4_znh3r",
+        null
+      ],
+      "pairB": [
+        "id12_hrqzo",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id6_t01wq",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id9_j3alk",
+        null
+      ],
+      "pairB": [
+        "id11_88k95",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id7_0vfh2",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id6_mp0v4",
+        null
+      ],
+      "pairB": [
+        "id16_rm9gx",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id8_atd7m",
+      "round": 4,
+      "teamA": "id1_zrxme",
+      "teamB": "id2_zso6v",
+      "pairA": [
+        "id8_jylul",
+        null
+      ],
+      "pairB": [
+        "id15_7htn7",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
     }
   ],
   "par": {
@@ -1689,12 +1825,17 @@
     "3": {
       "venue": "Palmetto",
       "date": "2026-07-06"
+    },
+    "4": {
+      "venue": "",
+      "date": "2026-07-13"
     }
   },
   "weekFormat": {
     "1": "alternate",
     "2": "alternate",
-    "3": "bestball"
+    "3": "bestball",
+    "4": "singles"
   },
   "weekConfirm": {
     "1": {
@@ -1706,6 +1847,10 @@
       "id2_zso6v": true
     },
     "3": {
+      "id1_zrxme": true,
+      "id2_zso6v": true
+    },
+    "4": {
       "id1_zrxme": true,
       "id2_zso6v": true
     }
