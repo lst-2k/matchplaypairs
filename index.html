@@ -41,23 +41,25 @@
 
   /* Layout */
   .container{max-width:1100px; margin:0 auto; padding:24px;}
-  .tabs{
-    display:flex; gap:6px; flex-wrap:wrap;
-    margin-bottom:20px;
-    border-bottom:2px solid var(--line);
+  .section-heading{
+    font-family:'Fraunces',serif; font-size:20px; font-weight:700;
+    color:var(--fairway); margin:28px 0 12px;
+    padding-bottom:8px; border-bottom:2px solid var(--line);
   }
-  .tab{
-    padding:10px 18px;
-    background:none; border:none;
-    font-family:'Fraunces',serif; font-size:16px; font-weight:600;
-    color:#7A7363; cursor:pointer;
-    border-bottom:3px solid transparent;
-    transform:translateY(2px);
+
+  #backToTop{
+    position:fixed; bottom:24px; right:20px; z-index:999;
+    background:var(--fairway); color:#fff;
+    border:none; border-radius:999px;
+    padding:10px 18px; font-size:13px; font-weight:600;
+    font-family:'Inter',sans-serif; cursor:pointer;
+    box-shadow:0 4px 16px rgba(0,0,0,0.25);
+    opacity:0; pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    transform:translateY(8px);
   }
-  .tab.active{color:var(--fairway); border-bottom-color:var(--gold);}
-  .panel{display:none;}
-  .panel.active{display:block; animation:fade .25s ease;}
-  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  #backToTop.visible{opacity:1; pointer-events:auto; transform:translateY(0);}
+  #backToTop:hover{background:var(--fairway-light);}
 
   .card{
     background:var(--card);
@@ -371,6 +373,11 @@
   table.leaderboard td.num, table.leaderboard th.num{text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700;}
   table.leaderboard tr:first-child td{font-weight:700;}
   table.leaderboard tr:first-child{background:rgba(201,162,39,0.12);}
+  #leaderboardContainer{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); overflow:hidden;
+    margin-bottom:8px;
+  }
 
   .empty-state{
     text-align:center; padding:40px 20px; color:#9A8C70;
@@ -586,29 +593,24 @@
 </div>
 </header>
 
-<div class="container">
-  <div class="tabs">
-    <button class="tab active" data-tab="fixtures">Fixtures &amp; Results</button>
-    <button class="tab" data-tab="leaderboard">Leaderboard</button>
-  </div>
 
-  <!-- FIXTURES & RESULTS -->
-  <section class="panel active" id="panel-fixtures">
-    <div id="fixturesContainer"></div>
-    <div id="fixturesEmpty" class="empty-state" style="display:none;">
-      <h4>No fixtures yet</h4>
-      <p>Check back once the tournament schedule has been published.</p>
-    </div>
-  </section>
+<div class="container">
 
   <!-- LEADERBOARD -->
-  <section class="panel" id="panel-leaderboard">
-    <div class="card">
-      <h3>Team standings</h3>
-      <div id="leaderboardContainer"></div>
-    </div>
-  </section>
+  <div id="leaderboardContainer"></div>
+
+  <!-- FIXTURES & RESULTS -->
+  <div class="section-heading">Fixtures &amp; Results</div>
+  <div id="fixturesContainer"></div>
+  <div id="fixturesEmpty" class="empty-state" style="display:none;">
+    <h4>No fixtures yet</h4>
+    <p>Check back once the tournament schedule has been published.</p>
+  </div>
+
 </div>
+
+<!-- Back to top button -->
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑ Top</button>
 
 <div id="loadError" class="container" style="display:none;">
   <div class="card">
@@ -629,16 +631,6 @@ let state = {
 
 /* ============ TABS ============ */
 
-document.querySelectorAll('.tab').forEach(tab=>{
-  tab.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
-    if(tab.dataset.tab==='fixtures') renderFixtures();
-    if(tab.dataset.tab==='leaderboard') renderLeaderboard();
-  });
-});
 
 /* ============ HELPERS ============ */
 
@@ -1076,12 +1068,13 @@ function toggleInlineScorecard(matchId, btn){
     btn.textContent = 'Show scorecard ▾';
     return;
   }
-  // Build the scorecard into the container
   wrap.innerHTML = '';
   const card = buildInlineScorecardCard(matchId);
   if(card) wrap.appendChild(card);
   wrap.style.display = 'block';
   btn.textContent = 'Hide scorecard ▴';
+  // Smoothly scroll so the scorecard is visible
+  setTimeout(()=> wrap.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
 }
 
 function buildInlineScorecardCard(matchId){
@@ -1391,9 +1384,10 @@ function statusCellHTML(st, h, teamA, teamB){
 /* ============ LEADERBOARD ============ */
 function renderLeaderboard(){
   const lbContainer = document.getElementById('leaderboardContainer');
+  if(!lbContainer) return;
 
   if(state.teams.length===0){
-    lbContainer.innerHTML = '<div class="empty-state"><h4>No teams yet</h4><p>Check back once the tournament has been set up.</p></div>';
+    lbContainer.innerHTML = '';
     return;
   }
 
@@ -1471,8 +1465,7 @@ async function loadData(){
     renderLeaderboard();
   }catch(err){
     console.error(err);
-    document.querySelector('.tabs').style.display='none';
-    document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+    document.querySelector('.container').style.display='none';
     document.getElementById('loadError').style.display='block';
   }
 }
@@ -1491,6 +1484,16 @@ loadData();
     s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*72}%;width:${size}px;height:${size}px;--d:${2.5+Math.random()*4}s;--delay:-${Math.random()*5}s;--op:${0.2+Math.random()*0.5};`;
     container.appendChild(s);
   }
+})();
+
+// Back to top button — show after scrolling 300px
+(function(){
+  const btn = document.getElementById('backToTop');
+  if(!btn) return;
+  window.addEventListener('scroll', ()=>{
+    if(window.scrollY > 300) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }, {passive:true});
 })();
 </script>
 </body>
