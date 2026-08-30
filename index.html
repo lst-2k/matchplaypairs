@@ -700,7 +700,7 @@ function renderFixtures(){
     // admin tool stores it) and convert to a human-readable label.
     const weekFormatKey = (state.weekFormat && state.weekFormat[roundNum]) || '';
     let formatText = '';
-    if(weekFormatKey === 'alternate') formatText = 'Alternate Shot';
+    if(weekFormatKey === 'alternate') formatText = 'Alternate Hole';
     else if(weekFormatKey === 'bestball') formatText = '4 Ball Better Ball';
     else if(weekFormatKey === 'singles') formatText = 'Singles';
     else if(weekFormatKey) formatText = weekFormatKey; // fallback: show raw value
