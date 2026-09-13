@@ -1645,6 +1645,142 @@
       },
       "finalized": false,
       "result": null
+    },
+    {
+      "id": "id1_ahxst",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id7_4moml",
+        null
+      ],
+      "pairB": [
+        "id11_dhybp",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id2_jl0gz",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id4_e7boz",
+        null
+      ],
+      "pairB": [
+        "id12_xezwq",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id3_m8mym",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id8_dk9rc",
+        null
+      ],
+      "pairB": [
+        "id13_tjvsw",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id4_t1432",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id5_ahc3z",
+        null
+      ],
+      "pairB": [
+        "id14_7q76g",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id5_pa6s0",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id9_fu27p",
+        null
+      ],
+      "pairB": [
+        "id15_dykqv",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id6_wy56s",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id1_difru",
+        null
+      ],
+      "pairB": [
+        "id16_ctiuj",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id7_9esw7",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id10_zlwyy",
+        null
+      ],
+      "pairB": [
+        "id17_5dpy2",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
+    },
+    {
+      "id": "id8_z4p4z",
+      "round": 4,
+      "teamA": "id1_0o2ix",
+      "teamB": "id2_noz6m",
+      "pairA": [
+        "id3_cqydf",
+        null
+      ],
+      "pairB": [
+        "id18_4k0fk",
+        null
+      ],
+      "scores": {},
+      "finalized": false,
+      "result": null
     }
   ],
   "par": {
@@ -1679,12 +1815,17 @@
     "3": {
       "venue": "Harbour Town",
       "date": "2026-09-07"
+    },
+    "4": {
+      "venue": "Harbour Town",
+      "date": "2026-09-14"
     }
   },
   "weekFormat": {
     "1": "alternate",
     "2": "alternate",
-    "3": "bestball"
+    "3": "bestball",
+    "4": "singles"
   },
   "weekConfirm": {
     "1": {
@@ -1696,6 +1837,10 @@
       "id2_noz6m": true
     },
     "3": {
+      "id1_0o2ix": true,
+      "id2_noz6m": true
+    },
+    "4": {
       "id1_0o2ix": true,
       "id2_noz6m": true
     }
