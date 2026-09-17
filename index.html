@@ -20,6 +20,8 @@
     --line:#DDD6C5;
     --card:#FFFFFF;
     --radius:14px;
+    --rc-dark:#5B6472;
+    --rc-dark-light:#6C7684;
   }
   *{box-sizing:border-box;}
   body{
@@ -116,18 +118,20 @@
   .fixture-match-row {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    align-items: center;
+    align-items: stretch;
     background: #fff;
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 10px 16px;
-    gap: 12px;
+    border-radius: 10px;
+    overflow: hidden;
+    gap: 0;
   }
   .fixture-side {
     display: flex;
     align-items: center;
     gap: 14px;
     min-width: 0;
+    padding: 12px 16px;
+    transition: background 0.2s ease;
   }
   .fixture-side.left-side {
     justify-content: flex-end;
@@ -166,9 +170,36 @@
     font-weight: 600;
     text-align: center;
     min-width: 40px;
+    padding: 12px 6px;
+    background: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .rc-score-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .rc-thru-number{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .rc-finished-badge{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:30px; height:26px; padding:0 8px;
+    border-radius:6px;
+    background: var(--rc-dark);
+    color:#fff;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px; font-weight:800;
+    letter-spacing:0.02em;
+    box-shadow:0 1px 3px rgba(0,0,0,0.25);
   }
   .player-name {
     font-size: 14px;
@@ -191,15 +222,18 @@
   
   .pill {
     font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 9px;
-    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 6px;
     white-space: nowrap;
     text-transform: uppercase;
+    letter-spacing:0.03em;
+    color:#fff;
+    box-shadow:0 2px 6px rgba(0,0,0,0.25);
   }
   .pill.neutral {
-    background: #9A8C70;
+    background: #5B6472;
     color: #fff;
   }
   
@@ -209,8 +243,8 @@
       display: grid !important;
       grid-template-columns: 1fr auto 1fr !important;
       flex-direction: row !important;
-      padding: 10px 8px;
-      gap: 6px;
+      padding: 0;
+      gap: 0;
     }
     
     /* Maintain side structures */
@@ -220,6 +254,7 @@
       align-items: center !important;
       width: auto !important;
       gap: 8px;
+      padding: 10px 8px;
     }
     .fixture-side.left-side {
       justify-content: flex-end !important;
@@ -254,8 +289,14 @@
       font-size: 13px;
     }
     .pill {
-      font-size: 10px;
-      padding: 3px 7px;
+      font-size: 11px;
+      padding: 5px 10px;
+    }
+    .rc-score-label {
+      font-size: 13px;
+    }
+    .rc-thru-number {
+      font-size: 13px;
     }
     
     /* Ensure the center element stays centered cleanly */
@@ -299,26 +340,29 @@
     font-size:13px;
   }
   table.scorecard th, table.scorecard td{
-    border:1px solid var(--line);
+    border:1px solid #8A8F98;
     text-align:center;
-    padding:6px 4px;
+    padding:8px 4px;
   }
   table.scorecard th{
-    background:var(--fairway);
-    color:var(--cream);
-    font-weight:600;
+    background:var(--rc-dark);
+    color:#fff;
+    font-weight:800;
     font-size:12px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
   }
   table.scorecard td.label{
-    text-align:left; font-weight:600; background:var(--cream); white-space:nowrap; padding-left:10px;
+    text-align:left; font-weight:700; white-space:nowrap; padding-left:10px;
+    font-size:14px;
   }
   table.scorecard td.out, table.scorecard th.out,
   table.scorecard td.in, table.scorecard th.in,
   table.scorecard td.tot, table.scorecard th.tot{
-    background:#EFE9D8; font-weight:700;
+    background:rgba(0,0,0,0.18); font-weight:800; font-size:14px;
   }
-  td.noncounting-cell{color:#A39A85; background:#F8F5EC;}
-  td.counting-cell{font-weight:700;}
+  td.counting-cell{font-weight:800; font-size:15px;}
+  td.noncounting-cell{opacity:0.48;}
   .platform-badge{
     display:inline-flex; align-items:center; gap:4px;
     border-radius:999px; padding:2px 7px 2px 5px;
@@ -330,20 +374,25 @@
 
   .win-ring{
     display:inline-flex; align-items:center; justify-content:center;
-    width:22px; height:22px; border-radius:50%;
-    border:2px solid;
-    font-weight:700; font-family:'JetBrains Mono',monospace;
-    font-size:12px; line-height:1;
+    width:26px; height:26px; border-radius:50%;
+    border:2.5px solid;
+    font-weight:800; font-family:'JetBrains Mono',monospace;
+    font-size:13px; line-height:1;
+    box-shadow:0 1px 4px rgba(0,0,0,0.3);
   }
-  .par-row td.label{background:#EFE9D8 !important;}
-  .par-row td.par-cell{background:#F3EFE2; color:var(--gold); font-weight:700; font-family:'JetBrains Mono',monospace;}
+  .par-row td.label{background:var(--rc-dark) !important; color:#fff !important; font-weight:700;}
+  .par-row td.par-cell{background:var(--rc-dark) !important; color:var(--gold) !important; font-weight:800; font-family:'JetBrains Mono',monospace; font-size:14px;}
+  .par-row td.out, .par-row td.in, .par-row td.tot{background:var(--rc-dark) !important; color:var(--gold) !important;}
+  .rc-status-row td{background:var(--rc-dark) !important;}
   .hole-status{
-    min-width:30px; height:22px; padding:0 5px; border-radius:11px;
+    min-width:40px; height:28px; padding:0 8px; border-radius:6px;
     display:inline-flex; align-items:center; justify-content:center;
-    font-size:10px; font-weight:700; color:#fff; margin:0 auto;
-    font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;
+    font-size:13px; font-weight:800; color:#fff; margin:0 auto;
+    font-family:'JetBrains Mono',monospace; letter-spacing:-0.01em;
+    text-transform:uppercase;
+    box-shadow:0 1px 4px rgba(0,0,0,0.35);
   }
-  .hole-status.empty{background:#EFEAE0; color:#C8BFA9; min-width:22px; width:22px; padding:0;}
+  .hole-status.empty{background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.28); min-width:26px; width:26px; padding:0; box-shadow:none;}
   .scorecard-legend{
     display:flex; gap:18px; flex-wrap:wrap; align-items:center;
     font-size:12px; color:#7A7363; margin-top:10px;
@@ -763,55 +812,87 @@ function renderFixtures(){
         const leftColor = leftTeam ? leftTeam.color : 'var(--ink)';
         const rightColor = rightTeam ? rightTeam.color : 'var(--ink)';
 
+        // Work out match state first, so we know which side (if either) is
+        // leading/winning and should get the solid Ryder Cup colour block —
+        // player-name text colour depends on that.
+        const st = computeMatchState(m);
+        let leftSideStyle = '';
+        let rightSideStyle = '';
+        let leftPillHtml = '';
+        let rightPillHtml = '';
+        let centerHtml = 'vs';
+
+        const scoreLabel = (text, color) => `<span class="rc-score-label" style="color:${color};">${escapeHTML(text)}</span>`;
+        const tiedPill = (text) => `<span class="pill neutral">${text}</span>`;
+
+        if(m.finalized && m.result){
+          centerHtml = `<span class="rc-finished-badge">F</span>`;
+          if(m.result.type==='halved'){
+            leftPillHtml = tiedPill('Halved');
+            rightPillHtml = tiedPill('Halved');
+          } else {
+            const isLeftWinner = (m.result.winner === leftTeamId);
+            const winColor = isLeftWinner ? leftColor : rightColor;
+            const winText = contrastTextColor(winColor);
+            if(isLeftWinner){
+              leftSideStyle = `background:${winColor}; color:${winText};`;
+              leftPillHtml = scoreLabel(m.result.label, winText);
+            } else {
+              rightSideStyle = `background:${winColor}; color:${winText};`;
+              rightPillHtml = scoreLabel(m.result.label, winText);
+            }
+          }
+        } else if(st.contiguousThru===0){
+          centerHtml = 'vs';
+        } else if(st.diff===0){
+          centerHtml = `<span class="rc-thru-number">${st.contiguousThru}</span>`;
+          leftPillHtml = tiedPill('Tied');
+          rightPillHtml = tiedPill('Tied');
+        } else {
+          centerHtml = `<span class="rc-thru-number">${st.contiguousThru}</span>`;
+          const isLeftLeading = (st.diff > 0 && m.teamA === leftTeamId) || (st.diff < 0 && m.teamB === leftTeamId);
+          const leadColor = isLeftLeading ? leftColor : rightColor;
+          const leadText = contrastTextColor(leadColor);
+          const label = `${Math.abs(st.diff)}UP`;
+          if(isLeftLeading){
+            leftSideStyle = `background:${leadColor}; color:${leadText};`;
+            leftPillHtml = scoreLabel(label, leadText);
+          } else {
+            rightSideStyle = `background:${leadColor}; color:${leadText};`;
+            rightPillHtml = scoreLabel(label, leadText);
+          }
+        }
+
+        // Names take on the solid colour block's contrast text once that
+        // side is leading/winning; otherwise they keep the team's accent colour.
+        // Names go white once a side carries the solid colour block, so both
+        // players read as the same solid shade instead of a dimmer second line.
+        const leftNameColor = leftSideStyle ? '#fff' : leftColor;
+        const rightNameColor = rightSideStyle ? '#fff' : rightColor;
+
         let leftPlayersHtml = '';
         if(leftPair && leftPair.length > 0){
           const p1 = playerById(leftTeamId, leftPair[0]);
-          leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; font-weight:600;">${platformBadgeHTML(p1) || displayName(p1)}</div>`;
+          leftPlayersHtml += `<div class="player-name" style="color: ${leftNameColor}; font-weight:600;">${platformBadgeHTML(p1) || displayName(p1)}</div>`;
           if(leftPair[1]){
             const p2 = playerById(leftTeamId, leftPair[1]);
-            leftPlayersHtml += `<div class="player-name" style="color: ${leftColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${platformBadgeHTML(p2) || displayName(p2)}</div>`;
+            leftPlayersHtml += `<div class="player-name" style="color: ${leftNameColor}; font-size: 13px; margin-top: 1px; font-weight:400;">${platformBadgeHTML(p2) || displayName(p2)}</div>`;
           }
         }
 
         let rightPlayersHtml = '';
         if(rightPair && rightPair.length > 0){
           const p1 = playerById(rightTeamId, rightPair[0]);
-          rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; font-weight:600;">${platformBadgeHTML(p1) || displayName(p1)}</div>`;
+          rightPlayersHtml += `<div class="player-name" style="color: ${rightNameColor}; font-weight:600;">${platformBadgeHTML(p1) || displayName(p1)}</div>`;
           if(rightPair[1]){
             const p2 = playerById(rightTeamId, rightPair[1]);
-            rightPlayersHtml += `<div class="player-name" style="color: ${rightColor}; opacity: 0.75; font-size: 13px; margin-top: 1px; font-weight:400;">${platformBadgeHTML(p2) || displayName(p2)}</div>`;
+            rightPlayersHtml += `<div class="player-name" style="color: ${rightNameColor}; font-size: 13px; margin-top: 1px; font-weight:400;">${platformBadgeHTML(p2) || displayName(p2)}</div>`;
           }
-        }
-
-        const st = computeMatchState(m);
-        let leftPillHtml = '';
-        let rightPillHtml = '';
-        let centerHtml = 'vs';
-
-        if(m.finalized && m.result){
-          if(m.result.type==='halved'){
-            centerHtml = `<span class="pill neutral">Halved</span>`;
-          } else {
-            const isLeftWinner = (m.result.winner === leftTeamId);
-            const pillHtml = `<span class="pill" style="background:${isLeftWinner ? leftColor : rightColor}; color:${contrastTextColor(isLeftWinner ? leftColor : rightColor)};">${escapeHTML(m.result.label)}</span>`;
-            if(isLeftWinner) leftPillHtml = pillHtml;
-            else rightPillHtml = pillHtml;
-          }
-        } else if(st.contiguousThru===0){
-          centerHtml = 'vs';
-        } else if(st.diff===0){
-          centerHtml = `<span class="pill neutral">AS thru ${st.contiguousThru}</span>`;
-        } else {
-          const isLeftLeading = (st.diff > 0 && m.teamA === leftTeamId) || (st.diff < 0 && m.teamB === leftTeamId);
-          const leadingColor = isLeftLeading ? leftColor : rightColor;
-          const pillHtml = `<span class="pill" style="background:${leadingColor}; color:${contrastTextColor(leadingColor)};">${Math.abs(st.diff)} UP</span>`;
-          if(isLeftLeading) leftPillHtml = pillHtml;
-          else rightPillHtml = pillHtml;
         }
 
         return `
           <div class="fixture-match-row" id="match-row-${m.id}">
-            <div class="fixture-side left-side">
+            <div class="fixture-side left-side" style="${leftSideStyle}">
               <div class="pill-slot left-pill">${leftPillHtml}</div>
               <div class="players-slot left-players">
                 ${leftPlayersHtml}
@@ -820,7 +901,7 @@ function renderFixtures(){
             
             <div class="fixture-vs-center">${centerHtml}</div>
             
-            <div class="fixture-side right-side">
+            <div class="fixture-side right-side" style="${rightSideStyle}">
               <div class="players-slot right-players">
                 ${rightPlayersHtml}
               </div>
@@ -1213,22 +1294,22 @@ function buildParRow(lastRelevantHole, weekNum){
   const par = getWeekPar(weekNum);
   const tr = document.createElement('tr');
   tr.className = 'par-row';
-  let html = `<td class="label" style="background:#EFE9D8;">Par</td>`;
+  let html = `<td class="label" style="background:var(--rc-dark); color:#fff;">Par</td>`;
   let outSum=0, inSum=0, total=0;
 
+  // Par is fixed for the course/week, so always show the full 18 holes —
+  // even once a match has finished early and later holes are hidden elsewhere.
   for(let h=1; h<=9; h++){
     const val = Number(par[h]) || 0;
-    const hidden = h > lastRelevantHole;
-    html += `<td class="par-cell">${hidden ? '' : (val||'')}</td>`;
-    if(!hidden) outSum += val;
+    html += `<td class="par-cell">${val||''}</td>`;
+    outSum += val;
   }
   total += outSum;
   html += `<td class="out">${outSum||''}</td>`;
   for(let h=10; h<=18; h++){
     const val = Number(par[h]) || 0;
-    const hidden = h > lastRelevantHole;
-    html += `<td class="par-cell">${hidden ? '' : (val||'')}</td>`;
-    if(!hidden) inSum += val;
+    html += `<td class="par-cell">${val||''}</td>`;
+    inSum += val;
   }
   total += inSum;
   html += `<td class="in">${inSum||''}</td>`;
@@ -1265,8 +1346,16 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
     labelHint = (oddEven === 'all' ? '(counts: all holes)' : `(counts: ${oddEven==='odd'?'1,3,5...17':'2,4,6...18'})`);
   }
 
+  // Solid Ryder Cup-style team-colour block for this half of the card,
+  // with big bold lettering in whichever of white/ink reads best on it.
+  const rowColor = teamColor || '#1F4D2C';
+  const textColor = contrastTextColor(rowColor);
+  const labelBg = shadeColor(rowColor, -20);
+  tr.style.background = rowColor;
+  tr.style.color = textColor;
+
   const nameDisplay = player ? (platformBadgeHTML(player) || displayName(player)) : '?';
-  let html = `<td class="label">${nameDisplay} <span style="color:#B7AE99; font-size:11px;">${labelHint}</span></td>`;
+  let html = `<td class="label" style="background:${labelBg}; color:${textColor};">${nameDisplay} <span style="opacity:0.75; font-size:11px;">${labelHint}</span></td>`;
   let outSum=0, inSum=0, total=0;
 
   // Helper: wrap score in a ring only if this team won this hole AND
@@ -1275,8 +1364,8 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
     if(v == null) return '';
     const holeResult = holeResults && holeResults[h-1];
     const thisTeamWon = holeResult === team; // 'A' or 'B' matches team param
-    if(thisTeamWon && isCounting && teamColor){
-      return `<span class="win-ring" style="border-color:${teamColor};">${v}</span>`;
+    if(thisTeamWon && isCounting){
+      return `<span class="win-ring" style="border-color:${textColor}; color:${textColor};">${v}</span>`;
     }
     return v;
   };
@@ -1300,10 +1389,11 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
       isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
     }
 
-    html += `<td class="${(isBetterBall||isSingles||(oddEven==='all')||(oddEven==='odd'&&h%2===1)||(oddEven==='even'&&h%2===0))?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v,isCounting)}</td>`;
+    const cellClass = (isBetterBall||isSingles||(oddEven==='all')||(oddEven==='odd'&&h%2===1)||(oddEven==='even'&&h%2===0))?'counting-cell':'noncounting-cell';
+    html += `<td class="${cellClass}" style="color:${textColor};">${scoreDisplay(h,v,isCounting)}</td>`;
     if(v!=null){ outSum+=v; total+=v; }
   }
-  html += `<td class="out">${outSum||''}</td>`;
+  html += `<td class="out" style="color:${textColor};">${outSum||''}</td>`;
   for(let h=10; h<=18; h++){
     const hidden = h > lastRelevantHole;
     const v = hidden ? null : getScore(m,h,team,idx);
@@ -1321,13 +1411,29 @@ function buildPlayerRow(m, {team, idx, player, oddEven}, lastRelevantHole, holeR
       isCounting = oddEven === 'all' || (oddEven==='odd' && h%2===1) || (oddEven==='even' && h%2===0);
     }
 
-    html += `<td class="${(isBetterBall||isSingles||(oddEven==='all')||(oddEven==='odd'&&h%2===1)||(oddEven==='even'&&h%2===0))?'counting-cell':'noncounting-cell'}">${scoreDisplay(h,v,isCounting)}</td>`;
+    const cellClass = (isBetterBall||isSingles||(oddEven==='all')||(oddEven==='odd'&&h%2===1)||(oddEven==='even'&&h%2===0))?'counting-cell':'noncounting-cell';
+    html += `<td class="${cellClass}" style="color:${textColor};">${scoreDisplay(h,v,isCounting)}</td>`;
     if(v!=null){ inSum+=v; total+=v; }
   }
-  html += `<td class="in">${inSum||''}</td>`;
-  html += `<td class="tot">${total||''}</td>`;
+  html += `<td class="in" style="color:${textColor};">${inSum||''}</td>`;
+  html += `<td class="tot" style="color:${textColor}; font-size:16px;">${total||''}</td>`;
   tr.innerHTML = html;
   return tr;
+}
+
+// Lightens (positive percent) or darkens (negative percent) a hex colour —
+// used for the player-name stripe within each team's solid colour block.
+function shadeColor(hex, percent){
+  if(!hex) return hex;
+  const c = hex.replace('#','');
+  if(c.length!==6) return hex;
+  let r = parseInt(c.substr(0,2),16);
+  let g = parseInt(c.substr(2,2),16);
+  let b = parseInt(c.substr(4,2),16);
+  r = Math.min(255, Math.max(0, Math.round(r + (percent/100)*255)));
+  g = Math.min(255, Math.max(0, Math.round(g + (percent/100)*255)));
+  b = Math.min(255, Math.max(0, Math.round(b + (percent/100)*255)));
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
 }
 
 function getScore(m, hole, team, idx){
@@ -1340,9 +1446,10 @@ function getScore(m, hole, team, idx){
 
 function buildResultRow(m, lastRelevantHole){
   const tr = document.createElement('tr');
+  tr.className = 'rc-status-row';
   const st = computeMatchState(m);
   const teamA = teamById(m.teamA), teamB = teamById(m.teamB);
-  let html = `<td class="label" style="background:#EFE9D8;">Match status</td>`;
+  let html = `<td class="label" style="background:var(--rc-dark); color:#fff;">Match status</td>`;
   for(let h=1; h<=9; h++) html += (h > lastRelevantHole) ? `<td><span class="hole-status empty"></span></td>` : statusCellHTML(st, h, teamA, teamB);
   html += `<td class="out"></td>`;
   for(let h=10; h<=18; h++) html += (h > lastRelevantHole) ? `<td><span class="hole-status empty"></span></td>` : statusCellHTML(st, h, teamA, teamB);
@@ -1370,7 +1477,7 @@ function statusCellHTML(st, h, teamA, teamB){
   const diff = st.running[h-1];
   let label, bg, textColor;
   if(diff===0){
-    label = 'AS'; bg = '#9A8C70'; textColor = '#fff';
+    label = 'AS'; bg = '#5B6472'; textColor = '#fff';
   } else {
     const leadingTeam = diff>0 ? teamA : teamB;
     label = `${Math.abs(diff)}up`;
