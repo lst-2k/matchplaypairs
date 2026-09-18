@@ -314,17 +314,21 @@
 
   /* Scorecard */
   .scorecard-wrap{overflow-x:auto;}
-  .scorecard-toggle-row{
-    display:flex; justify-content:flex-end;
-    padding:6px 0 2px;
-  }
+  .fixture-match-wrap{ position:relative; }
   .scorecard-toggle-btn{
-    font-family:'Inter',sans-serif; font-size:12px; font-weight:600;
-    color:var(--fairway); background:none; border:1.5px solid var(--fairway);
-    border-radius:999px; padding:5px 14px; cursor:pointer;
-    transition:background 0.15s, color 0.15s;
+    position:absolute;
+    right:6px;
+    bottom:6px;
+    width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; line-height:1;
+    color:#fff; background:rgba(0,0,0,0.5);
+    border:none; border-radius:999px; padding:0; cursor:pointer;
+    transition:background 0.15s, transform 0.15s;
+    z-index:3;
   }
-  .scorecard-toggle-btn:hover{background:var(--fairway); color:#fff;}
+  .scorecard-toggle-btn:hover{background:rgba(0,0,0,0.75);}
+  .scorecard-toggle-btn.expanded{transform:rotate(180deg);}
   .inline-scorecard-wrap{
     border-top:1px solid var(--line);
     margin-top:6px; padding-top:10px;
@@ -891,29 +895,27 @@ function renderFixtures(){
         }
 
         return `
-          <div class="fixture-match-row" id="match-row-${m.id}">
-            <div class="fixture-side left-side" style="${leftSideStyle}">
-              <div class="pill-slot left-pill">${leftPillHtml}</div>
-              <div class="players-slot left-players">
-                ${leftPlayersHtml}
+          <div class="fixture-match-wrap">
+            <div class="fixture-match-row" id="match-row-${m.id}">
+              <div class="fixture-side left-side" style="${leftSideStyle}">
+                <div class="pill-slot left-pill">${leftPillHtml}</div>
+                <div class="players-slot left-players">
+                  ${leftPlayersHtml}
+                </div>
+              </div>
+
+              <div class="fixture-vs-center">${centerHtml}</div>
+
+              <div class="fixture-side right-side" style="${rightSideStyle}">
+                <div class="players-slot right-players">
+                  ${rightPlayersHtml}
+                </div>
+                <div class="pill-slot right-pill">${rightPillHtml}</div>
               </div>
             </div>
-            
-            <div class="fixture-vs-center">${centerHtml}</div>
-            
-            <div class="fixture-side right-side" style="${rightSideStyle}">
-              <div class="players-slot right-players">
-                ${rightPlayersHtml}
-              </div>
-              <div class="pill-slot right-pill">${rightPillHtml}</div>
-            </div>
+            <button class="scorecard-toggle-btn" onclick="toggleInlineScorecard('${m.id}', this)" title="Show scorecard" aria-label="Show scorecard">▾</button>
+            <div class="inline-scorecard-wrap" id="inline-sc-${m.id}" style="display:none;"></div>
           </div>
-          <div class="scorecard-toggle-row">
-            <button class="scorecard-toggle-btn" onclick="toggleInlineScorecard('${m.id}', this)">
-              Show scorecard ▾
-            </button>
-          </div>
-          <div class="inline-scorecard-wrap" id="inline-sc-${m.id}" style="display:none;"></div>
         `;
       }).join('');
 
@@ -1146,14 +1148,18 @@ function toggleInlineScorecard(matchId, btn){
   const isOpen = wrap.style.display !== 'none';
   if(isOpen){
     wrap.style.display = 'none';
-    btn.textContent = 'Show scorecard ▾';
+    btn.classList.remove('expanded');
+    btn.title = 'Show scorecard';
+    btn.setAttribute('aria-label', 'Show scorecard');
     return;
   }
   wrap.innerHTML = '';
   const card = buildInlineScorecardCard(matchId);
   if(card) wrap.appendChild(card);
   wrap.style.display = 'block';
-  btn.textContent = 'Hide scorecard ▴';
+  btn.classList.add('expanded');
+  btn.title = 'Hide scorecard';
+  btn.setAttribute('aria-label', 'Hide scorecard');
   // Smoothly scroll so the scorecard is visible
   setTimeout(()=> wrap.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
 }
@@ -1253,10 +1259,14 @@ function buildScorecardTable(m, pA, pB){
   tbody.appendChild(buildParRow(lastRelevantHole, m.round));
 
   // Pre-compute hole results and team colours so buildPlayerRow can
-  // highlight winning scores with a coloured ring.
+  // highlight winning scores with a coloured ring. Halved matches use a
+  // neutral grey (two tones lighter than the "Halved" badge) instead of
+  // either team's colour, on both sides.
   const holeResults = computeHoleResults(m);
-  const teamAColor = (teamById(m.teamA) || {}).color || '#1F4D2C';
-  const teamBColor = (teamById(m.teamB) || {}).color || '#0B3D91';
+  const isHalved = m.finalized && m.result && m.result.type === 'halved';
+  const halvedColor = '#98A1AF';
+  const teamAColor = isHalved ? halvedColor : ((teamById(m.teamA) || {}).color || '#1F4D2C');
+  const teamBColor = isHalved ? halvedColor : ((teamById(m.teamB) || {}).color || '#0B3D91');
 
   const isSingles = m.format === 'singles' || pA.filter(p=>p).length <= 1;
 
