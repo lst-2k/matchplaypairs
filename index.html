@@ -833,8 +833,11 @@ function renderFixtures(){
         if(m.finalized && m.result){
           centerHtml = `<span class="rc-finished-badge">F</span>`;
           if(m.result.type==='halved'){
-            leftPillHtml = tiedPill('Halved');
-            rightPillHtml = tiedPill('Halved');
+            const halvedColor = '#98A1AF';
+            leftSideStyle = `background:${halvedColor}; color:#fff;`;
+            rightSideStyle = `background:${halvedColor}; color:#fff;`;
+            leftPillHtml = scoreLabel('Halved', '#fff');
+            rightPillHtml = scoreLabel('Halved', '#fff');
           } else {
             const isLeftWinner = (m.result.winner === leftTeamId);
             const winColor = isLeftWinner ? leftColor : rightColor;
@@ -1260,14 +1263,10 @@ function buildScorecardTable(m, pA, pB){
   tbody.appendChild(buildParRow(lastRelevantHole, m.round));
 
   // Pre-compute hole results and team colours so buildPlayerRow can
-  // highlight winning scores with a coloured ring. Halved matches use a
-  // neutral grey (two tones lighter than the "Halved" badge) instead of
-  // either team's colour, on both sides.
+  // highlight winning scores with a coloured ring.
   const holeResults = computeHoleResults(m);
-  const isHalved = m.finalized && m.result && m.result.type === 'halved';
-  const halvedColor = '#98A1AF';
-  const teamAColor = isHalved ? halvedColor : ((teamById(m.teamA) || {}).color || '#1F4D2C');
-  const teamBColor = isHalved ? halvedColor : ((teamById(m.teamB) || {}).color || '#0B3D91');
+  const teamAColor = (teamById(m.teamA) || {}).color || '#1F4D2C';
+  const teamBColor = (teamById(m.teamB) || {}).color || '#0B3D91';
 
   const isSingles = m.format === 'singles' || pA.filter(p=>p).length <= 1;
 
